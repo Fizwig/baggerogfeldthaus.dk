@@ -4,10 +4,9 @@ import { cookies } from "next/headers";
 /**
  * Opretter en Supabase klient til server-side brug
  * Bruges i Server Components eller API routes
+ * @param cookieStore - Cookie store fra Next.js
  */
-export const createClient = async () => {
-  const cookieStore = await cookies();
-  
+export const createClient = (cookieStore: ReturnType<typeof cookies>) => {
   return createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
