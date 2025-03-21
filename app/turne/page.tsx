@@ -239,8 +239,8 @@ export default function TurnePage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
                 </svg>
               </div>
-              <h3 className="text-lg font-bold text-white mb-2">Live Electronics</h3>
-              <p className="text-pink-100/70">En unik blanding af elektronisk produktion og akustiske elementer der skaber et unikt lydbillede.</p>
+              <h3 className="text-lg font-bold text-white mb-2">SJOV OG UNDERHOLDNING</h3>
+              <p className="text-pink-100/70">En unik blanding af comedy og håndarbejde, hvor du både kan grine og lære at strikke i godt selskab.</p>
             </div>
             <div className="backdrop-blur-md bg-pink-900/10 border border-pink-500/20 p-5 rounded-lg">
               <div className="text-pink-300 mb-3">
@@ -248,24 +248,25 @@ export default function TurnePage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
                 </svg>
               </div>
-              <h3 className="text-lg font-bold text-white mb-2">Visuelle Effekter</h3>
-              <p className="text-pink-100/70">Specialdesignede visuals der akkompagnerer musikken og skaber en fuldstændig immersiv oplevelse.</p>
+              <h3 className="text-lg font-bold text-white mb-2">GIVE AWAYS</h3>
+              <p className="text-pink-100/70">Vi uddeler gaver og præmier under showet, så du kan vinde eksklusive strikketing og drikkevarer med hjem.</p>
             </div>
             <div className="backdrop-blur-md bg-pink-900/10 border border-pink-500/20 p-5 rounded-lg">
               <div className="text-pink-300 mb-3">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857M15 6a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 9a2 2 0 11-4 0 2 2 0 014 0z" />
                 </svg>
               </div>
-              <h3 className="text-lg font-bold text-white mb-2">Fællesskab</h3>
-              <p className="text-pink-100/70">Mød andre musikelskere og bliv en del af den voksende STRIK-familie på vores turnédatoer.</p>
+              <h3 className="text-lg font-bold text-white mb-2">STRIK & DRIK FÆLLESSKAB</h3>
+              <p className="text-pink-100/70">Mød andre strikkeglade mennesker og bliv en del af det hyggelige STRIK & DRIK fællesskab på vores turnédatoer.</p>
             </div>
           </div>
         </div>
         
         {/* Footer */}
-        <div className="text-center text-xs text-pink-300/60 mb-12">
-          <p>© {new Date().getFullYear()} STRIK • Elektronisk Musik • Danmark</p>
+        <div className="text-center text-xs text-pink-300/60 mt-6">
+          <p>© {new Date().getFullYear()} BAGGER & FELDTHAUS • STRIK & DRIK • Danmark</p>
+          <p className="text-pink-300/50 text-sm mt-1">// SECURE CONNECTION ESTABLISHED //</p>
         </div>
       </div>
     </div>

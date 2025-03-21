@@ -108,8 +108,9 @@ export default function BrevkassePage() {
         </div>
         
         {/* Footer */}
-        <div className="text-center text-xs text-pink-300/60 mt-8 mb-4">
-          <p>© {new Date().getFullYear()} STRIK • Elektronisk Musik • Danmark</p>
+        <div className="text-center text-xs text-pink-300/60 mt-6">
+          <p>© {new Date().getFullYear()} BAGGER & FELDTHAUS • STRIK & DRIK • Danmark</p>
+          <p className="text-pink-300/50 text-xs mt-1">// SECURE CONNECTION ESTABLISHED //</p>
         </div>
       </div>
     </main>
