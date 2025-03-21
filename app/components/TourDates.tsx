@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 
 interface TourDate {
@@ -55,7 +55,7 @@ const tourDates: TourDate[] = [
   }
 ];
 
-const TourDates: React.FC = () => {
+const NeuTourDates: React.FC = () => {
   return (
     <div className="neu-container p-6">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
@@ -143,7 +143,37 @@ const TourDates: React.FC = () => {
   );
 };
 
-export default TourDates; 
+// TOUR_DATES data for the main TourDates component
+const TOUR_DATES = [
+  {
+    date: "02. MAR 2025",
+    city: "KØBENHAVN",
+    location: "VEGA",
+    ticketLink: "https://billetto.dk/strikogdrik-kobenhavn",
+    soldOut: false
+  },
+  {
+    date: "09. MAR 2025",
+    city: "AARHUS",
+    location: "TRAIN",
+    ticketLink: "https://billetto.dk/strikogdrik-aarhus",
+    soldOut: true
+  },
+  {
+    date: "16. MAR 2025",
+    city: "ODENSE",
+    location: "POSTEN",
+    ticketLink: "https://billetto.dk/strikogdrik-odense",
+    soldOut: false
+  },
+  {
+    date: "23. MAR 2025",
+    city: "AALBORG",
+    location: "SKRÅEN",
+    ticketLink: "https://billetto.dk/strikogdrik-aalborg",
+    soldOut: false
+  },
+  {
     date: "09. APR 2025",
     city: "ESBJERG",
     location: "TOBAKKEN",
