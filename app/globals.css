@@ -1,0 +1,121 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --primary: #ff6b98;
+  --primary-light: #ffa0c5;
+  --primary-dark: #e64079;
+  --accent: #4dd0e1;
+  --bg-color: #eff0f3;
+  --card-bg: #fff;
+  --text-primary: #333;
+  --text-secondary: #666;
+}
+
+body {
+  background-color: var(--bg-color);
+  color: var(--text-primary);
+}
+
+@layer components {
+  .neu-container {
+    @apply bg-white rounded-lg shadow-md overflow-hidden;
+  }
+  
+  .neu-card {
+    @apply bg-white rounded-md border border-gray-100 shadow-sm overflow-hidden transition-shadow duration-300 hover:shadow-md;
+  }
+  
+  .neu-card-pink {
+    @apply bg-white rounded-md border border-pink-100 shadow-sm overflow-hidden transition-shadow duration-300 hover:shadow-md;
+  }
+  
+  .neu-text-container {
+    @apply bg-white p-6 rounded-lg border border-gray-100 shadow-sm;
+  }
+  
+  .neu-button-small {
+    @apply px-4 py-1 bg-pink-500 text-white rounded-full font-medium text-sm 
+    transition-all duration-300 hover:bg-pink-600 hover:shadow-md;
+  }
+  
+  .neu-button-pink-lg {
+    @apply px-8 py-3 bg-pink-500 text-white rounded-full font-bold text-lg
+    transition-all duration-300 hover:bg-pink-600 hover:shadow-md;
+  }
+  
+  .neu-date-badge {
+    @apply bg-gradient-to-r from-pink-500 to-pink-600 rounded-l-md;
+  }
+  
+  .neu-badge-sold-out {
+    @apply px-3 py-1 bg-gray-200 text-gray-600 rounded-full text-sm font-medium;
+  }
+  
+  .neu-list-bullet {
+    @apply text-pink-500 text-xl font-bold;
+  }
+  
+  .neu-info-card {
+    @apply bg-white p-6 rounded-lg border border-gray-100 shadow-sm relative;
+  }
+  
+  .neu-info-icon {
+    @apply text-2xl mb-3;
+  }
+  
+  /* Terminal style elements */
+  .terminal-box {
+    @apply bg-gray-900 border border-gray-700 rounded-lg overflow-hidden shadow-md;
+  }
+  
+  .terminal-header {
+    @apply bg-gray-800 py-2 px-4 border-b border-gray-700 flex items-center;
+  }
+  
+  .terminal-body {
+    @apply text-gray-200 p-4;
+  }
+  
+  .text-primary {
+    color: var(--primary);
+  }
+  
+  .text-accent {
+    color: var(--accent);
+  }
+  
+  .text-neupink-500 {
+    @apply text-pink-500;
+  }
+  
+  .text-neupink-600 {
+    @apply text-pink-600;
+  }
+  
+  .text-neugray-600 {
+    @apply text-gray-600;
+  }
+  
+  .text-neugray-700 {
+    @apply text-gray-700;
+  }
+  
+  .bg-terminal-gray {
+    @apply bg-gray-800;
+  }
+  
+  .text-cyan {
+    @apply text-cyan-400;
+  }
+  
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+  }
+  
+  .animate-blink-caret {
+    animation: blink 1s step-end infinite;
+  }
+} 
