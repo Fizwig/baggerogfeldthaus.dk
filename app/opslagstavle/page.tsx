@@ -22,6 +22,41 @@ enum SortType {
   MOST_LIKED = 'mest_populære'
 }
 
+// Tilføj ImageComponent
+const MessageImage = ({ src, alt }: { src: string, alt: string }) => {
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(false);
+
+  return (
+    <div className="relative w-full aspect-video max-h-[400px] rounded-lg overflow-hidden bg-purple-900/20">
+      {isLoading && (
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-pink-500"></div>
+        </div>
+      )}
+      {error ? (
+        <div className="absolute inset-0 flex items-center justify-center text-pink-500">
+          <p>Kunne ikke indlæse billedet</p>
+        </div>
+      ) : (
+        <Image
+          src={src}
+          alt={alt}
+          fill
+          className={`object-contain transition-opacity duration-300 ${
+            isLoading ? 'opacity-0' : 'opacity-100'
+          }`}
+          onLoadingComplete={() => setIsLoading(false)}
+          onError={() => {
+            setError(true);
+            setIsLoading(false);
+          }}
+        />
+      )}
+    </div>
+  );
+};
+
 export default function OpslagstavlePage() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(true);
@@ -769,20 +804,8 @@ export default function OpslagstavlePage() {
 
               {/* Image section */}
               {msg.billede && (
-                <div className="relative w-full bg-black/30">
-                  <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/20 pointer-events-none z-10"></div>
-                  <div className="relative w-full">
-                    <div className="relative aspect-video w-full group/img">
-                      <Image 
-                        src={msg.billede}
-                        alt={`Billede fra ${msg.navn}`}
-                        fill
-                        className="object-contain transition-transform duration-700 group-hover/img:scale-[1.02]"
-                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 70vw"
-                      />
-                      <div className="absolute inset-0 opacity-0 group-hover/img:opacity-100 transition-opacity duration-500 bg-gradient-to-r from-pink-500/5 via-transparent to-pink-500/5"></div>
-                    </div>
-                  </div>
+                <div className="mt-4 mb-2">
+                  <MessageImage src={msg.billede} alt={`Billede fra ${msg.navn}`} />
                 </div>
               )}
             </div>
