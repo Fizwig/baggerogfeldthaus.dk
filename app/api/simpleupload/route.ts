@@ -51,56 +51,63 @@ export async function POST(request: NextRequest) {
     // Prøv at uploade til Supabase
     let supabaseUrl = '';
     try {
-      // Brug en simpel filsti uden komplekse mapper
+      // Brug de specifikke mapper der matcher policies fra Supabase dashboard
       const bucketName = 'brevkasse-billeder';
-      const path = fullFileName;
+      const policyFolders = ['p06g4u_0', 'p06g4u_1', 'p06g4u_2', 'p06g4u_3'];
+      let uploaded = false;
       
-      console.log(`Forsøger upload til bucket: ${bucketName}, path: ${path}`);
-      
-      const { data, error } = await supabase.storage
-        .from(bucketName)
-        .upload(path, buffer, {
-          contentType: file.type,
-          cacheControl: '3600',
-          upsert: true
-        });
+      // Forsøg at uploade til hver folder indtil en lykkes
+      for (const folder of policyFolders) {
+        if (uploaded) break;
         
-      if (!error) {
-        console.log(`Upload lykkedes til ${bucketName}/${path}`);
+        const path = `${folder}/${fullFileName}`;
+        console.log(`Forsøger upload til bucket: ${bucketName}, path: ${path}`);
         
-        // Brug getPublicUrl til at få den offentlige URL
-        const { data: urlData } = supabase.storage
-          .from(bucketName)
-          .getPublicUrl(path);
-          
-        if (urlData && urlData.publicUrl) {
-          supabaseUrl = urlData.publicUrl;
-          console.log('Supabase URL genereret:', supabaseUrl);
-        } else {
-          throw new Error('Kunne ikke generere public URL');
+        try {
+          const { data, error } = await supabase.storage
+            .from(bucketName)
+            .upload(path, buffer, {
+              contentType: file.type,
+              cacheControl: '3600',
+              upsert: true
+            });
+            
+          if (!error) {
+            console.log(`Upload lykkedes til ${bucketName}/${path}`);
+            
+            // Brug getPublicUrl til at få den offentlige URL
+            const { data: urlData } = supabase.storage
+              .from(bucketName)
+              .getPublicUrl(path);
+              
+            if (urlData && urlData.publicUrl) {
+              supabaseUrl = urlData.publicUrl;
+              console.log('Supabase URL genereret:', supabaseUrl);
+              uploaded = true;
+              break;
+            }
+          } else {
+            console.error(`Fejl ved upload til ${folder}:`, error);
+          }
+        } catch (folderError) {
+          console.error(`Fejl ved forsøg på at uploade til ${folder}:`, folderError);
         }
-      } else {
-        console.error(`Fejl ved upload til ${bucketName}:`, error);
-        
-        // Fallback til lokal URL hvis Supabase fejler
+      }
+      
+      if (!uploaded) {
+        // Hvis ingen af mapperne virkede, brug lokal URL som fallback
         supabaseUrl = `/uploads/${fullFileName}`;
-        console.log('Bruger lokal URL som fallback:', supabaseUrl);
+        console.log('Kunne ikke uploade til nogen mappe, bruger lokal URL som fallback:', supabaseUrl);
       }
     } catch (uploadError) {
-      console.error('Supabase upload fejlede:', uploadError);
+      console.error('Supabase upload fejlede fuldstændigt:', uploadError);
       // Hvis Supabase upload fejlede, brug lokal URL
       supabaseUrl = `/uploads/${fullFileName}`;
       console.log('Bruger lokal URL som fallback:', supabaseUrl);
     }
     
-    // Sikre at URL'en er absolut hvis det er en Supabase URL
-    if (supabaseUrl.startsWith('/')) {
-      // Det er en lokal URL, behold den som den er
-      console.log('Returnerer lokal URL:', supabaseUrl);
-    } else {
-      // Logga den fulde URL for at se om den er korrekt
-      console.log('Returnerer Supabase URL:', supabaseUrl);
-    }
+    // Log den endelige URL
+    console.log('Returnerer URL:', supabaseUrl);
     
     return NextResponse.json({
       success: true,

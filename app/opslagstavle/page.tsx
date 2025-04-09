@@ -773,15 +773,18 @@ export default function OpslagstavlePage() {
                   <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/20 pointer-events-none z-10"></div>
                   <div className="relative w-full">
                     <div className="relative aspect-video w-full group/img">
-                      {/* Error boundary for images that might fail to load */}
                       {(() => {
                         try {
                           // Format URL correctly - handle both absolute and relative paths
-                          const imageUrl = msg.billede.startsWith('/')
-                            ? msg.billede // Local URL - keep as is
-                            : msg.billede; // Supabase URL - already absolute
-                            
-                          console.log(`Rendering image for ${msg.id}: ${imageUrl}`);
+                          let imageUrl = msg.billede;
+                          
+                          // Log the original image URL for debugging
+                          console.log(`Original image URL for ${msg.id}: ${imageUrl}`);
+                          
+                          // Make sure we have valid URL format
+                          if (!imageUrl) {
+                            throw new Error('Manglende URL');
+                          }
                           
                           return (
                             <>
@@ -791,16 +794,22 @@ export default function OpslagstavlePage() {
                                 fill
                                 className="object-contain transition-transform duration-700 group-hover/img:scale-[1.02]"
                                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 70vw"
+                                loading="lazy"
+                                unoptimized={true} // Disable Next.js image optimization for Supabase URLs
                                 onError={(e) => {
                                   console.error(`Image failed to load: ${imageUrl}`);
                                   const target = e.target as HTMLImageElement;
                                   target.style.display = 'none';
                                   const parent = target.parentElement;
                                   if (parent) {
+                                    // Insert a fallback message
                                     const errorMsg = document.createElement('div');
                                     errorMsg.className = 'text-center py-6 text-pink-400';
-                                    errorMsg.textContent = 'Billedet kunne ikke indlæses';
+                                    errorMsg.innerHTML = 'Billedet kunne ikke indlæses<br><span class="text-xs text-pink-300/70">Prøv at genindlæse siden</span>';
                                     parent.appendChild(errorMsg);
+                                    
+                                    // Log details for debugging
+                                    console.error(`Image error details for: ${imageUrl}`, e);
                                   }
                                 }}
                               />
@@ -808,12 +817,12 @@ export default function OpslagstavlePage() {
                             </>
                           );
                         } catch (error) {
-                          console.error('Error rendering image:', error);
+                          console.error('Error handling image render:', error);
                           return (
                             <div className="flex items-center justify-center h-full">
                               <div className="text-pink-400 p-4 text-center">
                                 <p>Kunne ikke vise billedet</p>
-                                <p className="text-xs mt-2 text-pink-300/70">{String(error).substring(0, 50)}</p>
+                                <p className="text-xs mt-2 text-pink-300/70">{error instanceof Error ? error.message : 'Ukendt fejl'}</p>
                               </div>
                             </div>
                           );
