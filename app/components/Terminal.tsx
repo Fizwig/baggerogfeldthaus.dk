@@ -155,6 +155,11 @@ export default function Terminal() {
         throw new Error('Ingen forbindelse til databasen');
       }
       
+      // Log the image URL for debugging
+      if (messageData.image_url) {
+        console.log('Billede URL der gemmes:', messageData.image_url);
+      }
+      
       // Create object for database with correct column names
       const dataToInsert = {
         navn: messageData.name.trim(),

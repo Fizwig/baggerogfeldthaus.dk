@@ -773,14 +773,52 @@ export default function OpslagstavlePage() {
                   <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/20 pointer-events-none z-10"></div>
                   <div className="relative w-full">
                     <div className="relative aspect-video w-full group/img">
-                      <Image 
-                        src={msg.billede}
-                        alt={`Billede fra ${msg.navn}`}
-                        fill
-                        className="object-contain transition-transform duration-700 group-hover/img:scale-[1.02]"
-                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 70vw"
-                      />
-                      <div className="absolute inset-0 opacity-0 group-hover/img:opacity-100 transition-opacity duration-500 bg-gradient-to-r from-pink-500/5 via-transparent to-pink-500/5"></div>
+                      {/* Error boundary for images that might fail to load */}
+                      {(() => {
+                        try {
+                          // Format URL correctly - handle both absolute and relative paths
+                          const imageUrl = msg.billede.startsWith('/')
+                            ? msg.billede // Local URL - keep as is
+                            : msg.billede; // Supabase URL - already absolute
+                            
+                          console.log(`Rendering image for ${msg.id}: ${imageUrl}`);
+                          
+                          return (
+                            <>
+                              <Image 
+                                src={imageUrl}
+                                alt={`Billede fra ${msg.navn}`}
+                                fill
+                                className="object-contain transition-transform duration-700 group-hover/img:scale-[1.02]"
+                                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 70vw"
+                                onError={(e) => {
+                                  console.error(`Image failed to load: ${imageUrl}`);
+                                  const target = e.target as HTMLImageElement;
+                                  target.style.display = 'none';
+                                  const parent = target.parentElement;
+                                  if (parent) {
+                                    const errorMsg = document.createElement('div');
+                                    errorMsg.className = 'text-center py-6 text-pink-400';
+                                    errorMsg.textContent = 'Billedet kunne ikke indlæses';
+                                    parent.appendChild(errorMsg);
+                                  }
+                                }}
+                              />
+                              <div className="absolute inset-0 opacity-0 group-hover/img:opacity-100 transition-opacity duration-500 bg-gradient-to-r from-pink-500/5 via-transparent to-pink-500/5"></div>
+                            </>
+                          );
+                        } catch (error) {
+                          console.error('Error rendering image:', error);
+                          return (
+                            <div className="flex items-center justify-center h-full">
+                              <div className="text-pink-400 p-4 text-center">
+                                <p>Kunne ikke vise billedet</p>
+                                <p className="text-xs mt-2 text-pink-300/70">{String(error).substring(0, 50)}</p>
+                              </div>
+                            </div>
+                          );
+                        }
+                      })()}
                     </div>
                   </div>
                 </div>
