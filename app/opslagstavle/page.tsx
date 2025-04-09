@@ -26,6 +26,19 @@ enum SortType {
 const MessageImage = ({ src, alt }: { src: string, alt: string }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(false);
+  const [imageUrl, setImageUrl] = useState(src);
+
+  useEffect(() => {
+    // Hvis URL'en starter med /uploads/, prefixer vi med base URL
+    if (src.startsWith('/uploads/')) {
+      setImageUrl(`${window.location.origin}${src}`);
+    }
+    // Hvis URL'en er fra Supabase men mangler public URL
+    else if (src.includes('brevkasse-billeder') && !src.includes('storage.googleapis.com')) {
+      const supabaseUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/brevkasse-billeder/${src}`;
+      setImageUrl(supabaseUrl);
+    }
+  }, [src]);
 
   return (
     <div className="relative w-full aspect-video max-h-[400px] rounded-lg overflow-hidden bg-purple-900/20">
@@ -35,19 +48,21 @@ const MessageImage = ({ src, alt }: { src: string, alt: string }) => {
         </div>
       )}
       {error ? (
-        <div className="absolute inset-0 flex items-center justify-center text-pink-500">
-          <p>Kunne ikke indlæse billedet</p>
+        <div className="absolute inset-0 flex flex-col items-center justify-center text-pink-500 p-4">
+          <p className="text-center">Kunne ikke indlæse billedet</p>
+          <p className="text-xs mt-2 text-pink-400/70">{imageUrl}</p>
         </div>
       ) : (
         <Image
-          src={src}
+          src={imageUrl}
           alt={alt}
           fill
           className={`object-contain transition-opacity duration-300 ${
             isLoading ? 'opacity-0' : 'opacity-100'
           }`}
           onLoadingComplete={() => setIsLoading(false)}
-          onError={() => {
+          onError={(e) => {
+            console.error('Billede fejlede:', imageUrl);
             setError(true);
             setIsLoading(false);
           }}
