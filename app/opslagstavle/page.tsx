@@ -22,23 +22,55 @@ enum SortType {
   MOST_LIKED = 'mest_populære'
 }
 
-// Tilføj ImageComponent
+// Forbedret ImageComponent med URL normalisering
 const MessageImage = ({ src, alt }: { src: string, alt: string }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(false);
-  const [imageUrl, setImageUrl] = useState(src);
-
+  const [normalizedSrc, setNormalizedSrc] = useState('');
+  
   useEffect(() => {
-    // Hvis URL'en starter med /uploads/, prefixer vi med base URL
-    if (src.startsWith('/uploads/')) {
-      setImageUrl(`${window.location.origin}${src}`);
+    // Normaliser URL og håndter forskellige formater
+    if (!src) {
+      setError(true);
+      setIsLoading(false);
+      return;
     }
-    // Hvis URL'en er fra Supabase men mangler public URL
-    else if (src.includes('brevkasse-billeder') && !src.includes('storage.googleapis.com')) {
-      const supabaseUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/brevkasse-billeder/${src}`;
-      setImageUrl(supabaseUrl);
+    
+    try {
+      // Logging for fejlfinding
+      console.log("Billede URL modtaget:", src);
+      
+      // Konvertér relative URLs
+      let finalSrc = src;
+      
+      // Håndter Supabase storage URLs der mangler https://
+      if (src.includes('supabase.co') && !src.startsWith('http')) {
+        finalSrc = `https://${src}`;
+        console.log("Konverteret til HTTPS URL:", finalSrc);
+      }
+      
+      // Håndter lokale URLs
+      if (src.startsWith('/uploads/')) {
+        finalSrc = `${window.location.origin}${src}`;
+        console.log("Konverteret til fuld URL:", finalSrc);
+      }
+      
+      setNormalizedSrc(finalSrc);
+    } catch (e) {
+      console.error("Fejl ved normalisering af billede URL:", e);
+      setError(true);
+      setIsLoading(false);
     }
   }, [src]);
+
+  // Hvis der ikke er en gyldig URL
+  if (!src) {
+    return (
+      <div className="relative w-full aspect-video max-h-[400px] rounded-lg overflow-hidden bg-purple-900/20 flex items-center justify-center text-pink-500">
+        <p>Manglende billede URL</p>
+      </div>
+    );
+  }
 
   return (
     <div className="relative w-full aspect-video max-h-[400px] rounded-lg overflow-hidden bg-purple-900/20">
@@ -48,26 +80,35 @@ const MessageImage = ({ src, alt }: { src: string, alt: string }) => {
         </div>
       )}
       {error ? (
-        <div className="absolute inset-0 flex flex-col items-center justify-center text-pink-500 p-4">
-          <p className="text-center">Kunne ikke indlæse billedet</p>
-          <p className="text-xs mt-2 text-pink-400/70">{imageUrl}</p>
+        <div className="absolute inset-0 flex items-center justify-center text-pink-500 p-2">
+          <div className="text-center">
+            <p>Kunne ikke indlæse billedet</p>
+            <p className="text-xs mt-2 opacity-70">{src.substring(0, 50)}{src.length > 50 ? '...' : ''}</p>
+            <button 
+              onClick={() => window.open(src, '_blank')}
+              className="mt-2 px-3 py-1 bg-pink-500/20 text-pink-300 text-xs rounded hover:bg-pink-500/30 transition-colors"
+            >
+              Åbn billede i nyt vindue
+            </button>
+          </div>
         </div>
-      ) : (
+      ) : normalizedSrc ? (
         <Image
-          src={imageUrl}
+          src={normalizedSrc}
           alt={alt}
           fill
           className={`object-contain transition-opacity duration-300 ${
             isLoading ? 'opacity-0' : 'opacity-100'
           }`}
           onLoadingComplete={() => setIsLoading(false)}
-          onError={(e) => {
-            console.error('Billede fejlede:', imageUrl);
+          onError={() => {
+            console.error("Billede loading fejl for URL:", normalizedSrc);
             setError(true);
             setIsLoading(false);
           }}
+          unoptimized={true} // Brug dette for eksterne billeder
         />
-      )}
+      ) : null}
     </div>
   );
 };

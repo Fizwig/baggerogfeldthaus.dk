@@ -1,11 +1,9 @@
-'use server';
-
 import { NextRequest, NextResponse } from 'next/server';
 import { writeFile } from 'fs/promises';
 import { join } from 'path';
 import { createClient } from '@supabase/supabase-js';
 
-// Opret en Supabase-klient
+// Opret en Supabase-klient - bruger anon key men med server-side kode
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
@@ -40,11 +38,23 @@ export async function POST(request: NextRequest) {
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
     
-    // Upload til Supabase
-    const folder = 'p0/eget_0'; // Brug kun én mappe for konsistens
-    const path = `${folder}/${fullFileName}`;
-    
+    // Gem filen i public/uploads mappen først som fallback
+    const publicUploadDir = join(process.cwd(), 'public', 'uploads');
     try {
+      await writeFile(join(publicUploadDir, fullFileName), buffer);
+      console.log(`Fil gemt lokalt: ${fullFileName}`);
+    } catch (writeError) {
+      console.error('Kunne ikke gemme fil lokalt:', writeError);
+      // Fortsæt selvom lokal gem fejler
+    }
+    
+    // Prøv at uploade til Supabase
+    let supabaseUrl = '';
+    try {
+      // Brug kun én mappe for konsistens
+      const path = `billeder/${fullFileName}`;
+      console.log(`Uploading til Supabase path: ${path}`);
+      
       const { data, error } = await supabase.storage
         .from('brevkasse-billeder')
         .upload(path, buffer, {
@@ -52,44 +62,59 @@ export async function POST(request: NextRequest) {
           cacheControl: '3600',
           upsert: true
         });
-        
+      
       if (error) {
-        console.error('Supabase upload fejl:', error);
-        throw error;
+        throw new Error(`Supabase upload fejl: ${error.message}`);
       }
       
       // Hent public URL
       const { data: urlData } = supabase.storage
         .from('brevkasse-billeder')
         .getPublicUrl(path);
-        
-      if (!urlData?.publicUrl) {
-        throw new Error('Kunne ikke generere public URL');
+      
+      if (!urlData || !urlData.publicUrl) {
+        throw new Error('Kunne ikke hente public URL fra Supabase');
       }
       
-      console.log('Upload success, public URL:', urlData.publicUrl);
+      supabaseUrl = urlData.publicUrl;
+      console.log('Supabase upload succes. Public URL:', supabaseUrl);
       
-      return NextResponse.json({
-        success: true,
-        url: urlData.publicUrl
-      });
-      
+      // Sikre at URL'en er korrekt formateret
+      if (!supabaseUrl.startsWith('http')) {
+        supabaseUrl = `https://${supabaseUrl}`;
+        console.log('Korrigeret URL:', supabaseUrl);
+      }
     } catch (uploadError) {
       console.error('Supabase upload fejlede:', uploadError);
-      
-      // Gem lokalt som fallback
-      const publicUploadDir = join(process.cwd(), 'public', 'uploads');
-      await writeFile(join(publicUploadDir, fullFileName), buffer);
-      
-      return NextResponse.json({
-        success: true,
-        url: `/uploads/${fullFileName}`
-      });
+      // Hvis Supabase upload fejlede, brug lokal URL
+      supabaseUrl = `/uploads/${fullFileName}`;
+      console.log('Bruger lokal URL som fallback:', supabaseUrl);
     }
+    
+    // Verificer at URL'en er gyldig
+    try {
+      new URL(supabaseUrl.startsWith('/') ? `https://example.com${supabaseUrl}` : supabaseUrl);
+    } catch (urlError) {
+      console.error('Ugyldig URL genereret:', supabaseUrl, urlError);
+      // Sidste chance fallback
+      supabaseUrl = `/uploads/${fullFileName}`;
+    }
+    
+    return NextResponse.json({
+      success: true,
+      url: supabaseUrl,
+      fileName: fullFileName,
+      fileType: file.type,
+      fileSize: file.size
+    });
   } catch (error) {
     console.error('Uventet fejl ved filupload:', error);
+    if (error instanceof Error) {
+      console.error('Fejlbesked:', error.message);
+    }
+    
     return NextResponse.json(
-      { error: 'Kunne ikke uploade fil' },
+      { error: 'Uventet fejl ved filupload' },
       { status: 500 }
     );
   }
