@@ -37,10 +37,6 @@ export default function Terminal() {
 
   const { register, formState: { errors } } = useForm<FormData>();
 
-  // Tilføj nye states
-  const [showImagePreview, setShowImagePreview] = useState(false);
-  const [isMobileKeyboardOpen, setIsMobileKeyboardOpen] = useState(false);
-
   useEffect(() => {
     // Display intro text with typing effect
     if (currentLine < INTRO_TEXT.length) {
@@ -264,128 +260,104 @@ export default function Terminal() {
   };
 
   return (
-    <div className="w-full max-w-2xl mx-auto">
-      {/* Terminal vindue */}
-      <div className="backdrop-blur-md bg-black/40 border border-pink-500/30 rounded-xl overflow-hidden">
-        {/* Terminal header */}
-        <div className="px-4 py-3 border-b border-pink-500/20 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded-full bg-pink-500/70"></div>
-            <div className="w-3 h-3 rounded-full bg-purple-500/70"></div>
-            <div className="w-3 h-3 rounded-full bg-blue-500/70"></div>
+    <div className="w-full max-w-3xl mx-auto">
+      <div 
+        ref={terminalRef}
+        className="font-mono text-base sm:text-lg space-y-3 sm:space-y-4 max-h-[70vh] sm:max-h-[60vh] overflow-y-auto custom-scrollbar px-3 sm:px-0"
+      >
+        {terminalHistory.map((line, index) => (
+          <div 
+            key={index}
+            className={`transition-opacity duration-300 ${
+              index === terminalHistory.length - 1 ? 'animate-fade-in' : ''
+            } ${
+              // Styling baseret på linjetype
+              index === 0 ? 'text-transparent bg-clip-text bg-gradient-to-r from-white to-pink-500 font-bold text-xl sm:text-2xl' : // Velkommen
+              index === 1 || index === 2 ? 'text-white/90 text-sm sm:text-base' : // Undertekst
+              line.includes('👤') ? 'text-pink-400' : // Navn input
+              line.includes('💭') ? 'text-white' : // Besked input
+              line.includes('📸') ? 'text-pink-300' : // Billede upload
+              line.includes('✨') ? 'text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-purple-400' : // Success
+              line.includes('❌') ? 'text-red-400' : // Fejl
+              'text-pink-300/90' // Default
+            }`}
+          >
+            <span className="break-words">{line}</span>
           </div>
-          <div className="text-pink-300/70 text-sm">
-            {currentField === 'name' ? 'Indtast navn' : 'Skriv besked'}
-          </div>
-          <div className="w-20"></div>
-        </div>
-
-        {/* Terminal output */}
-        <div
-          ref={terminalRef}
-          className="h-[60vh] overflow-y-auto p-4 space-y-2 font-mono text-sm sm:text-base"
-        >
-          {terminalHistory.map((line, i) => (
-            <div key={i} className="text-white/90">{line}</div>
-          ))}
-          
-          {/* Billede preview */}
-          {selectedImage && showImagePreview && (
-            <div className="relative mt-4 mb-2 p-2 bg-black/30 rounded-lg">
-              <img
-                src={URL.createObjectURL(selectedImage)}
-                alt="Valgt billede"
-                className="max-h-48 rounded-lg mx-auto"
-              />
-              <button
-                onClick={() => setSelectedImage(null)}
-                className="absolute top-2 right-2 bg-red-500/80 text-white p-1 rounded-full"
-              >
-                ✕
-              </button>
-            </div>
-          )}
-        </div>
-
-        {/* Input område */}
-        <div className="border-t border-pink-500/20 p-4">
-          <form onSubmit={handleInputSubmit} className="space-y-4">
-            {/* Input felt med send knap */}
-            <div className="flex items-center gap-2">
-              <input
-                ref={inputRef}
-                type="text"
-                disabled={inputLocked || sending}
-                placeholder={currentField === 'name' ? 'Dit navn...' : 'Din besked...'}
-                className="flex-1 bg-black/30 text-white px-4 py-3 rounded-lg border border-pink-500/30 focus:border-pink-500/50 focus:outline-none"
-              />
-              <button
-                type="submit"
-                disabled={inputLocked || sending}
-                className="bg-pink-500/80 hover:bg-pink-500 text-white px-6 py-3 rounded-lg transition-colors disabled:opacity-50"
-              >
-                Send
-              </button>
-            </div>
-
-            {/* Billede upload knapper */}
+        ))}
+        
+        {!inputLocked && (
+          <form onSubmit={handleInputSubmit} className="flex items-center gap-2 mt-4 sm:mt-6 group">
+            <span className="text-pink-400 group-focus-within:text-pink-300 transition-colors">❯</span>
+            <input
+              ref={inputRef}
+              type="text"
+              className="flex-1 bg-transparent border-none outline-none text-white placeholder-pink-300/40 font-mono text-base sm:text-lg focus:ring-0"
+              placeholder={currentField === 'name' ? 'Dit navn...' : 'Del din historie...'}
+              disabled={sending}
+              autoFocus
+            />
             {currentField === 'message' && (
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="relative group">
-                    <button
-                      type="button"
-                      onClick={triggerFileInput}
-                      className="flex items-center gap-2 text-pink-300 hover:text-pink-400 transition-colors text-sm"
-                    >
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                      </svg>
-                      {selectedImage ? 'Skift billede' : 'Tilføj billede'}
-                    </button>
-                  </div>
-                  {selectedImage && (
-                    <button
-                      type="button"
-                      onClick={() => setShowImagePreview(!showImagePreview)}
-                      className="text-pink-300 hover:text-pink-400 transition-colors text-sm"
-                    >
-                      {showImagePreview ? 'Skjul' : 'Vis'} billede
-                    </button>
-                  )}
-                </div>
-                {selectedImage && (
-                  <button
-                    type="button"
-                    onClick={() => setSelectedImage(null)}
-                    className="text-red-400 hover:text-red-500 transition-colors text-sm"
-                  >
-                    Fjern billede
-                  </button>
-                )}
-              </div>
+              <button
+                type="button"
+                onClick={triggerFileInput}
+                className="p-2 sm:px-3 sm:py-1.5 text-pink-400 hover:text-pink-300 transition-all duration-300"
+                disabled={sending}
+              >
+                📸
+              </button>
             )}
           </form>
-
-          {/* Hjælpetekst */}
-          <div className="mt-4 text-xs text-pink-300/60">
-            {currentField === 'message' ? (
-              <p>Tryk på Send eller brug Enter for at sende • Tilføj et billede med kamera-ikonet</p>
-            ) : (
-              <p>Indtast dit navn og tryk Send eller Enter for at fortsætte</p>
-            )}
+        )}
+        
+        {sending && (
+          <div className="flex items-center gap-2 text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-purple-400 animate-pulse mt-4">
+            <span>⏳</span>
+            <span className="font-medium text-sm sm:text-base">Et øjeblik...</span>
           </div>
-        </div>
+        )}
+
+        {selectedImage && (
+          <div className="mt-4 flex items-center gap-2 text-pink-400/80">
+            <span>📎</span>
+            <span className="text-xs sm:text-sm truncate max-w-[200px] sm:max-w-[300px]">{selectedImage.name}</span>
+          </div>
+        )}
       </div>
 
-      {/* Skjult fil input */}
       <input
         ref={fileInputRef}
         type="file"
         accept="image/*"
-        className="hidden"
         onChange={handleImageSelection}
+        className="hidden"
       />
+
+      <style jsx>{`
+        .custom-scrollbar::-webkit-scrollbar {
+          width: 4px;
+          @media (min-width: 640px) {
+            width: 6px;
+          }
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+          background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+          background: rgba(219, 39, 119, 0.2);
+          border-radius: 3px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+          background: rgba(219, 39, 119, 0.4);
+        }
+        @keyframes fade-in {
+          from { opacity: 0; transform: translateY(10px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+          animation: fade-in 0.3s ease-out forwards;
+        }
+      `}</style>
     </div>
   );
 } 

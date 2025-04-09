@@ -22,97 +22,6 @@ enum SortType {
   MOST_LIKED = 'mest_populære'
 }
 
-// Forbedret ImageComponent med URL normalisering
-const MessageImage = ({ src, alt }: { src: string, alt: string }) => {
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(false);
-  const [normalizedSrc, setNormalizedSrc] = useState('');
-  
-  useEffect(() => {
-    // Normaliser URL og håndter forskellige formater
-    if (!src) {
-      setError(true);
-      setIsLoading(false);
-      return;
-    }
-    
-    try {
-      // Logging for fejlfinding
-      console.log("Billede URL modtaget:", src);
-      
-      // Konvertér relative URLs
-      let finalSrc = src;
-      
-      // Håndter Supabase storage URLs der mangler https://
-      if (src.includes('supabase.co') && !src.startsWith('http')) {
-        finalSrc = `https://${src}`;
-        console.log("Konverteret til HTTPS URL:", finalSrc);
-      }
-      
-      // Håndter lokale URLs
-      if (src.startsWith('/uploads/')) {
-        finalSrc = `${window.location.origin}${src}`;
-        console.log("Konverteret til fuld URL:", finalSrc);
-      }
-      
-      setNormalizedSrc(finalSrc);
-    } catch (e) {
-      console.error("Fejl ved normalisering af billede URL:", e);
-      setError(true);
-      setIsLoading(false);
-    }
-  }, [src]);
-
-  // Hvis der ikke er en gyldig URL
-  if (!src) {
-    return (
-      <div className="relative w-full aspect-video max-h-[400px] rounded-lg overflow-hidden bg-purple-900/20 flex items-center justify-center text-pink-500">
-        <p>Manglende billede URL</p>
-      </div>
-    );
-  }
-
-  return (
-    <div className="relative w-full aspect-video max-h-[400px] rounded-lg overflow-hidden bg-purple-900/20">
-      {isLoading && (
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-pink-500"></div>
-        </div>
-      )}
-      {error ? (
-        <div className="absolute inset-0 flex items-center justify-center text-pink-500 p-2">
-          <div className="text-center">
-            <p>Kunne ikke indlæse billedet</p>
-            <p className="text-xs mt-2 opacity-70">{src.substring(0, 50)}{src.length > 50 ? '...' : ''}</p>
-            <button 
-              onClick={() => window.open(src, '_blank')}
-              className="mt-2 px-3 py-1 bg-pink-500/20 text-pink-300 text-xs rounded hover:bg-pink-500/30 transition-colors"
-            >
-              Åbn billede i nyt vindue
-            </button>
-          </div>
-        </div>
-      ) : normalizedSrc ? (
-        <Image
-          src={normalizedSrc}
-          alt={alt}
-          fill
-          className={`object-contain transition-opacity duration-300 ${
-            isLoading ? 'opacity-0' : 'opacity-100'
-          }`}
-          onLoadingComplete={() => setIsLoading(false)}
-          onError={() => {
-            console.error("Billede loading fejl for URL:", normalizedSrc);
-            setError(true);
-            setIsLoading(false);
-          }}
-          unoptimized={true} // Brug dette for eksterne billeder
-        />
-      ) : null}
-    </div>
-  );
-};
-
 export default function OpslagstavlePage() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(true);
@@ -860,8 +769,20 @@ export default function OpslagstavlePage() {
 
               {/* Image section */}
               {msg.billede && (
-                <div className="mt-4 mb-2">
-                  <MessageImage src={msg.billede} alt={`Billede fra ${msg.navn}`} />
+                <div className="relative w-full bg-black/30">
+                  <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/20 pointer-events-none z-10"></div>
+                  <div className="relative w-full">
+                    <div className="relative aspect-video w-full group/img">
+                      <Image 
+                        src={msg.billede}
+                        alt={`Billede fra ${msg.navn}`}
+                        fill
+                        className="object-contain transition-transform duration-700 group-hover/img:scale-[1.02]"
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 70vw"
+                      />
+                      <div className="absolute inset-0 opacity-0 group-hover/img:opacity-100 transition-opacity duration-500 bg-gradient-to-r from-pink-500/5 via-transparent to-pink-500/5"></div>
+                    </div>
+                  </div>
                 </div>
               )}
             </div>
