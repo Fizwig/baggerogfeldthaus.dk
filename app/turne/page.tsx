@@ -3,7 +3,6 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import DecorativeElement from '@/app/components/DecorativeElement';
 
 interface TourDate {
   date: string;
@@ -100,7 +99,7 @@ export default function TurnePage() {
               href="/" 
               className="relative px-6 py-2 group backdrop-blur-md bg-black/30 border border-pink-400/30 hover:bg-pink-600/10 transition-colors rounded-md inline-block text-white font-medium"
             >
-              <span className="relative z-10">Forside</span>
+              Forside
             </Link>
           </li>
           <li>
@@ -108,8 +107,7 @@ export default function TurnePage() {
               href="/turne" 
               className="relative px-6 py-2 group backdrop-blur-md bg-pink-600/20 border border-pink-400/50 rounded-md inline-block text-white font-medium"
             >
-              <span className="relative z-10">Turné</span>
-              <span className="absolute bottom-0 left-0 w-full h-0.5 bg-pink-400 animate-pulse"></span>
+              Turné
             </Link>
           </li>
           <li>
@@ -117,7 +115,7 @@ export default function TurnePage() {
               href="/brevkasse" 
               className="relative px-6 py-2 group backdrop-blur-md bg-black/30 border border-pink-400/30 hover:bg-pink-600/10 transition-colors rounded-md inline-block text-white font-medium"
             >
-              <span className="relative z-10">Brevkasse</span>
+              Brevkasse
             </Link>
           </li>
           <li>
@@ -125,7 +123,7 @@ export default function TurnePage() {
               href="/opslagstavle" 
               className="relative px-6 py-2 group backdrop-blur-md bg-black/30 border border-pink-400/30 hover:bg-pink-600/10 transition-colors rounded-md inline-block text-white font-medium"
             >
-              <span className="relative z-10">Opslagstavle</span>
+              Opslagstavle
             </Link>
           </li>
         </ul>
@@ -133,15 +131,14 @@ export default function TurnePage() {
 
       {/* Main Content */}
       <div className="w-full max-w-6xl mx-auto p-4 relative z-10">
-        {/* Header med stiliseret titel - matcher brevkassen og opslagstavlen */}
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold">
-            <span className="bg-clip-text text-transparent bg-gradient-to-r from-pink-500 via-purple-400 to-pink-300">
-              STRIK TURNÉ 2025
+        {/* Header med stiliseret titel */}
+        <div className="text-center mb-12">
+          <h1 className="text-5xl md:text-6xl font-bold tracking-tight">
+            <span className="font-['Space_Grotesk'] font-black text-white relative inline-block">
+              <span className="relative">STRIK</span>
+              <span className="relative mx-4 text-pink-500">TURNÉ 2025</span>
             </span>
           </h1>
-          <div className="h-1 w-20 bg-gradient-to-r from-pink-500 to-purple-400 mx-auto mt-2"></div>
-          <p className="text-pink-300/80 text-sm mt-3 font-medium">// SECURE CONNECTION ESTABLISHED //</p>
         </div>
         
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
@@ -266,7 +263,6 @@ export default function TurnePage() {
         {/* Footer */}
         <div className="text-center text-xs text-pink-300/60 mt-6">
           <p>© {new Date().getFullYear()} BAGGER & FELDTHAUS • STRIK & DRIK • Danmark</p>
-          <p className="text-pink-300/50 text-sm mt-1">// SECURE CONNECTION ESTABLISHED //</p>
         </div>
       </div>
     </div>

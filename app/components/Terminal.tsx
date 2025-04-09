@@ -17,8 +17,9 @@ type MessageData = {
 
 // Simplified intro text with clearer instructions
 const INTRO_TEXT = [
-  'STRIK & DRIK TERMINAL',
-  'Skriv en besked til vores opslagstavle...',
+  '✨ Velkommen til Strik & Drik!',
+  '🎯 Del en sjov historie, stil et spørgsmål eller del et billede',
+  '⏳ Beskeder og billeder bliver automatisk slettet efter 24 timer'
 ];
 
 export default function Terminal() {
@@ -46,7 +47,7 @@ export default function Terminal() {
       return () => clearTimeout(timer);
     } else if (currentLine === INTRO_TEXT.length) {
       setInputLocked(false);
-      setTerminalHistory(prev => [...prev, 'Indtast dit navn:']);
+      setTerminalHistory(prev => [...prev, '👤 Indtast dit navn']);
       inputRef.current?.focus();
     }
   }, [currentLine]);
@@ -63,15 +64,15 @@ export default function Terminal() {
     const input = inputRef.current?.value;
     if (!input) return;
 
-    // Add user input to history
-    setTerminalHistory(prev => [...prev, input]);
+    // Add user input to history with a nice prefix
+    setTerminalHistory(prev => [...prev, `${currentField === 'name' ? '👤' : '💭'} ${input}`]);
     if (inputRef.current) {
       inputRef.current.value = '';
     }
 
     // Special command: "opslagstavle" - navigate to bulletin board
     if (input.toLowerCase() === 'opslagstavle') {
-      setTerminalHistory(prev => [...prev, `Omdirigerer til opslagstavlen...`]);
+      setTerminalHistory(prev => [...prev, `🔄 Omdirigerer til opslagstavlen...`]);
       setTimeout(() => {
         window.location.href = '/opslagstavle';
       }, 800);
@@ -81,7 +82,7 @@ export default function Terminal() {
     if (currentField === 'name') {
       setFormData(prev => ({ ...prev, name: input }));
       setCurrentField('message');
-      setTerminalHistory(prev => [...prev, 'Skriv din besked:']);
+      setTerminalHistory(prev => [...prev, '💭 Skriv din besked']);
     } else if (currentField === 'message') {
       setFormData(prev => ({ ...prev, message: input }));
       setSending(true);
@@ -90,14 +91,14 @@ export default function Terminal() {
         // Step 1: Upload image if selected
         let imageUrl = null;
         if (selectedImage) {
-          setTerminalHistory(prev => [...prev, 'Uploader billede...']);
+          setTerminalHistory(prev => [...prev, '📸 Uploader billede...']);
           imageUrl = await uploadImageToSupabase(selectedImage);
           setUploadedImageUrl(imageUrl);
-          setTerminalHistory(prev => [...prev, 'Billede uploadet']);
+          setTerminalHistory(prev => [...prev, '✅ Billede uploadet']);
         }
         
         // Step 2: Save message to database
-        setTerminalHistory(prev => [...prev, 'Sender besked...']);
+        setTerminalHistory(prev => [...prev, '📨 Sender besked...']);
         
         const messageData: MessageData = {
           name: formData.name,
@@ -110,9 +111,9 @@ export default function Terminal() {
         if (success) {
           setTerminalHistory(prev => [
             ...prev, 
-            'Besked sendt!',
-            'Din besked er nu synlig på opslagstavlen.',
-            'Se den på /opslagstavle'
+            '✨ Besked sendt!',
+            '📝 Din besked er nu synlig på opslagstavlen',
+            '🔗 Se den på /opslagstavle'
           ]);
           
           // Reset form
@@ -130,8 +131,8 @@ export default function Terminal() {
         console.error('Error submitting form:', error);
         setTerminalHistory(prev => [
           ...prev, 
-          'Fejl: ' + (error instanceof Error ? error.message : 'Ukendt fejl'),
-          'Prøv venligst igen'
+          `❌ ${error instanceof Error ? error.message : 'Ukendt fejl'}`,
+          '🔄 Prøv venligst igen'
         ]);
       } finally {
         setSending(false);
@@ -144,32 +145,58 @@ export default function Terminal() {
     try {
       console.log('Gemmer besked:', messageData);
       
+      // Validate required fields
+      if (!messageData.name || !messageData.message) {
+        throw new Error('Navn og besked er påkrævet');
+      }
+
+      // Validate Supabase connection
+      if (!supabase) {
+        throw new Error('Ingen forbindelse til databasen');
+      }
+      
       // Create object for database with correct column names
       const dataToInsert = {
-        navn: messageData.name,
-        besked: messageData.message,
+        navn: messageData.name.trim(),
+        besked: messageData.message.trim(),
         created_at: new Date().toISOString(),
+        likes: 0, // Initialize likes count
         ...(messageData.image_url ? { billede: messageData.image_url } : {})
       };
       
       console.log('Data til indsættelse:', dataToInsert);
       
       // Insert into the table - using the correct table name
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('brevkasse_beskeder')
-        .insert(dataToInsert);
+        .insert(dataToInsert)
+        .select()
+        .single();
 
       if (error) {
         console.error('Fejl ved indsættelse af besked:', error);
-        throw new Error(`Kunne ikke gemme besked: ${error.message}`);
+        if (error.code === '23505') { // Unique constraint error
+          throw new Error('En lignende besked er allerede sendt');
+        } else if (error.code === '23503') { // Foreign key error
+          throw new Error('Ugyldig reference i beskeden');
+        } else if (error.code === '42P01') { // Undefined table
+          throw new Error('Systemfejl: Kunne ikke finde beskedtabellen');
+        } else {
+          throw new Error(`Kunne ikke gemme besked: ${error.message}`);
+        }
+      }
+
+      if (!data) {
+        throw new Error('Ingen data returneret efter indsættelse');
       }
       
-      console.log('Besked gemt i databasen');
+      console.log('Besked gemt i databasen:', data);
       return true;
     } catch (error) {
       console.error('Fejl ved gemning af besked:', error);
       if (error instanceof Error) {
         console.error('Fejldetaljer:', error.message);
+        throw error; // Re-throw the error with the specific message
       }
       throw new Error('Kunne ikke gemme besked. Prøv venligst igen.');
     }
@@ -233,160 +260,102 @@ export default function Terminal() {
   };
 
   return (
-    <div className="w-full max-w-2xl mx-auto backdrop-blur-md bg-black/40 border border-pink-500/30 rounded-xl overflow-hidden shadow-[0_0_15px_rgba(219,39,119,0.2)]">
-      {/* Header med forbedret design */}
-      <div className="flex items-center justify-between p-3 bg-black/50 border-b border-pink-500/30 relative">
-        <div className="flex items-center gap-1.5">
-          <div className="w-3 h-3 rounded-full bg-red-500"></div>
-          <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
-          <div className="w-3 h-3 rounded-full bg-green-500"></div>
-        </div>
-        <div className="text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-purple-400 font-bold text-sm font-mono tracking-wider animate-pulse">
-          BREVKASSE.SYS
-        </div>
-        <div className="flex items-center">
-          <div className="w-2 h-2 rounded-full bg-pink-500 mr-1 animate-pulse"></div>
-          <div className="text-pink-500/70 text-xs font-mono">LIVE</div>
-        </div>
-      </div>
-      
-      {/* Terminal content med forbedret kontrast */}
+    <div className="w-full max-w-3xl mx-auto">
       <div 
         ref={terminalRef}
-        className="p-6 h-[450px] overflow-y-auto bg-gradient-to-b from-black/60 to-black/40 font-sans"
-        style={{ 
-          // Matrix baggrund
-          backgroundImage: `linear-gradient(rgba(255, 0, 170, 0.03) 1px, transparent 1px), 
-                           linear-gradient(90deg, rgba(255, 0, 170, 0.03) 1px, transparent 1px)`,
-          backgroundSize: '20px 20px'
-        }}
+        className="font-mono text-base sm:text-lg space-y-3 sm:space-y-4 max-h-[70vh] sm:max-h-[60vh] overflow-y-auto custom-scrollbar px-3 sm:px-0"
       >
-        {/* History med forbedret visuel hierarki */}
         {terminalHistory.map((line, index) => (
           <div 
-            key={index} 
-            className={`mb-4 ${
-              line.includes('Fejl') ? 'text-red-400 font-medium' : 
-              (index === 0 && currentLine > 0) ? 'text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-purple-400 font-bold text-2xl tracking-wider font-mono mb-2 uppercase' : 
-              (index === 1 && currentLine > 1) ? 'text-white/80 text-sm mb-6' :
-              line.includes('Indtast') || line.includes('Skriv') ? 'text-cyan-400 font-medium tracking-wide' :
-              line.includes('sendt') || line.includes('uploadet') ? 'text-green-400 font-medium' :
-              line.includes('Uploader') || line.includes('Sender') ? 'text-pink-400 font-medium' :
-              'text-white/90'
+            key={index}
+            className={`transition-opacity duration-300 ${
+              index === terminalHistory.length - 1 ? 'animate-fade-in' : ''
+            } ${
+              // Styling baseret på linjetype
+              index === 0 ? 'text-transparent bg-clip-text bg-gradient-to-r from-white to-pink-500 font-bold text-xl sm:text-2xl' : // Velkommen
+              index === 1 || index === 2 ? 'text-white/90 text-sm sm:text-base' : // Undertekst
+              line.includes('👤') ? 'text-pink-400' : // Navn input
+              line.includes('💭') ? 'text-white' : // Besked input
+              line.includes('📸') ? 'text-pink-300' : // Billede upload
+              line.includes('✨') ? 'text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-purple-400' : // Success
+              line.includes('❌') ? 'text-red-400' : // Fejl
+              'text-pink-300/90' // Default
             }`}
-            style={{
-              animation: 'fadeIn 0.5s ease forwards',
-              opacity: 0,
-              animationDelay: `${0.1 * index}s`,
-              textShadow: index === 0 && currentLine > 0 ? '0 0 10px rgba(255,0,170,0.7)' : 'none'
-            }}
           >
-            {line}
+            <span className="break-words">{line}</span>
           </div>
         ))}
         
-        {/* Uploaded image preview med mere stilren ramme */}
-        {uploadedImageUrl && (
-          <div className="my-6 rounded-lg overflow-hidden bg-black/40 backdrop-blur-sm border border-pink-500/30 p-3 shadow-[0_0_15px_rgba(255,0,170,0.2)]">
-            <div className="text-xs text-pink-400 mb-2 font-medium uppercase tracking-wider">Billede Preview:</div>
-            <img 
-              src={uploadedImageUrl} 
-              alt="Uploaded" 
-              className="max-w-full max-h-48 object-contain mx-auto rounded-md"
-            />
-          </div>
-        )}
-        
-        {/* Input area med forbedret fokus-tilstand */}
         {!inputLocked && (
-          <div className="mt-8">
-            <div className="text-pink-400 text-sm mb-2 font-medium tracking-wide flex items-center">
-              <div className="w-2 h-2 rounded-full bg-pink-500 mr-2 animate-pulse"></div>
-              {currentField === 'name' ? 'DIT NAVN:' : 'DIN BESKED:'}
-            </div>
-            
-            <form onSubmit={handleInputSubmit} className="flex flex-col gap-4">
-              <div className="flex items-center bg-black/50 backdrop-blur-sm border border-pink-500/40 rounded-lg overflow-hidden focus-within:border-pink-500/70 focus-within:shadow-[0_0_15px_rgba(255,0,170,0.3)] transition duration-300">
-                <input
-                  ref={inputRef}
-                  type="text"
-                  className="w-full bg-transparent p-4 border-none outline-none text-white placeholder-pink-300/50 font-medium text-base"
-                  disabled={inputLocked}
-                  autoFocus
-                  placeholder={currentField === 'name' ? 'Skriv dit navn her...' : 'Skriv din besked her...'}
-                />
-                <button type="submit" className="bg-gradient-to-r from-pink-600/50 to-purple-600/50 hover:from-pink-600/70 hover:to-purple-600/70 p-4 text-white transition duration-300 group">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="group-hover:translate-x-0.5 transition-transform duration-300">
-                    <line x1="22" y1="2" x2="11" y2="13"></line>
-                    <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
-                  </svg>
-                </button>
-              </div>
-              
-              {currentField === 'message' && (
-                <div className="flex items-center gap-4">
-                  <input 
-                    type="file" 
-                    ref={fileInputRef}
-                    onChange={handleImageSelection}
-                    className="hidden" 
-                    accept="image/*"
-                  />
-                  <button 
-                    type="button"
-                    onClick={triggerFileInput}
-                    className="bg-black/40 hover:bg-black/60 backdrop-blur-sm border border-pink-500/40 hover:border-pink-500/70 text-pink-400 px-5 py-3 rounded-lg transition duration-300 flex items-center gap-2 hover:shadow-[0_0_15px_rgba(255,0,170,0.2)]"
-                  >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                    </svg>
-                    {selectedImage ? 'Vælg et andet billede' : 'Tilføj et billede'}
-                  </button>
-                  
-                  {selectedImage && (
-                    <div className="text-sm text-pink-300/80 truncate flex-1 backdrop-blur-sm bg-black/20 p-2 rounded border border-pink-500/20">
-                      {selectedImage.name}
-                    </div>
-                  )}
-                </div>
-              )}
-            </form>
-          </div>
+          <form onSubmit={handleInputSubmit} className="flex items-center gap-2 mt-4 sm:mt-6 group">
+            <span className="text-pink-400 group-focus-within:text-pink-300 transition-colors">❯</span>
+            <input
+              ref={inputRef}
+              type="text"
+              className="flex-1 bg-transparent border-none outline-none text-white placeholder-pink-300/40 font-mono text-base sm:text-lg focus:ring-0"
+              placeholder={currentField === 'name' ? 'Dit navn...' : 'Del din historie...'}
+              disabled={sending}
+              autoFocus
+            />
+            {currentField === 'message' && (
+              <button
+                type="button"
+                onClick={triggerFileInput}
+                className="p-2 sm:px-3 sm:py-1.5 text-pink-400 hover:text-pink-300 transition-all duration-300"
+                disabled={sending}
+              >
+                📸
+              </button>
+            )}
+          </form>
         )}
         
-        {/* Processing indicator med forbedret animation */}
         {sending && (
-          <div className="mt-6 p-4 bg-black/50 backdrop-blur-sm border border-pink-500/40 rounded-lg flex items-center gap-3 shadow-[0_0_15px_rgba(255,0,170,0.2)]">
-            <div className="animate-spin h-5 w-5 border-2 border-pink-500/30 border-t-pink-500 rounded-full"></div>
-            <div className="text-pink-400 font-medium tracking-wide">SENDER DIN BESKED...</div>
+          <div className="flex items-center gap-2 text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-purple-400 animate-pulse mt-4">
+            <span>⏳</span>
+            <span className="font-medium text-sm sm:text-base">Et øjeblik...</span>
+          </div>
+        )}
+
+        {selectedImage && (
+          <div className="mt-4 flex items-center gap-2 text-pink-400/80">
+            <span>📎</span>
+            <span className="text-xs sm:text-sm truncate max-w-[200px] sm:max-w-[300px]">{selectedImage.name}</span>
           </div>
         )}
       </div>
-      
-      {/* Footer med bedre visuel fremhævning */}
-      <div className="bg-black/50 border-t border-pink-500/30 p-4 text-xs flex justify-between items-center">
-        <div className="text-pink-300/60 font-medium">[STRIK_ENCRYPTED_CHANNEL]</div>
-        <a href="/opslagstavle" className="text-pink-400 hover:text-white hover:bg-pink-500/30 transition-all duration-200 font-medium flex items-center gap-1 group rounded-full py-1 px-3 border border-transparent hover:border-pink-500/40">
-          GÅ TIL OPSLAGSTAVLEN 
-          <span className="group-hover:translate-x-1 transition-transform duration-300">→</span>
-        </a>
-      </div>
-      
-      {/* Custom styles med flere animationer */}
-      <style jsx global>{`
-        @keyframes fadeIn {
+
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*"
+        onChange={handleImageSelection}
+        className="hidden"
+      />
+
+      <style jsx>{`
+        .custom-scrollbar::-webkit-scrollbar {
+          width: 4px;
+          @media (min-width: 640px) {
+            width: 6px;
+          }
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+          background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+          background: rgba(219, 39, 119, 0.2);
+          border-radius: 3px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+          background: rgba(219, 39, 119, 0.4);
+        }
+        @keyframes fade-in {
           from { opacity: 0; transform: translateY(10px); }
           to { opacity: 1; transform: translateY(0); }
         }
-        
-        @keyframes neonPulse {
-          0%, 100% { text-shadow: 0 0 5px rgba(255,0,170,0.5), 0 0 15px rgba(255,0,170,0.3); }
-          50% { text-shadow: 0 0 10px rgba(255,0,170,0.8), 0 0 20px rgba(255,0,170,0.5); }
-        }
-        
-        @keyframes scanline {
-          0% { transform: translateY(-100%); }
-          100% { transform: translateY(100%); }
+        .animate-fade-in {
+          animation: fade-in 0.3s ease-out forwards;
         }
       `}</style>
     </div>

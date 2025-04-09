@@ -17,7 +17,7 @@ const Terminal = dynamic(() => import('../components/Terminal'), {
 
 export default function BrevkassePage() {
   return (
-    <main className="flex min-h-screen flex-col items-center py-4 relative">
+    <main className="flex min-h-screen flex-col items-center py-4 px-4 sm:px-6 relative">
       {/* Feminine pink hacker baggrund */}
       <div className="fixed inset-0 pointer-events-none z-0">
         {/* Matrix-lignende baggrund med pink nuancer */}
@@ -30,87 +30,76 @@ export default function BrevkassePage() {
         <div className="absolute inset-0 pointer-events-none z-10 opacity-10 bg-[repeating-linear-gradient(to_bottom,transparent,transparent_2px,rgba(255,0,255,0.05)_3px,transparent_4px)]"></div>
       </div>
       
-      <div className="w-full max-w-6xl mx-auto p-4 relative z-10">
+      <div className="w-full max-w-6xl mx-auto relative z-10">
         {/* Header med stiliseret titel */}
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold">
-            <span className="bg-clip-text text-transparent bg-gradient-to-r from-pink-500 via-purple-400 to-pink-300">
-              STRIK BREVKASSE
+        <div className="text-center mb-8 sm:mb-12">
+          <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight">
+            <span className="font-['Space_Grotesk'] font-black text-white relative inline-block">
+              <span className="relative">STRIK</span>
+              <span className="relative mx-2 sm:mx-4 text-pink-500">BREVKASSE</span>
             </span>
           </h1>
-          <div className="h-1 w-20 bg-gradient-to-r from-pink-500 to-purple-400 mx-auto mt-2"></div>
-          <p className="text-pink-300/80 text-sm mt-3 font-medium">// SECURE CONNECTION ESTABLISHED //</p>
         </div>
         
         {/* Moderne navigation */}
-        <nav className="mt-10 mb-8">
-          <ul className="flex flex-wrap justify-center gap-3">
+        <nav className="mt-6 sm:mt-10 mb-6 sm:mb-8 overflow-x-auto pb-2 -mx-4 sm:mx-0">
+          <ul className="flex justify-start sm:justify-center gap-2 sm:gap-3 px-4 sm:px-0 min-w-max sm:min-w-0">
             <li>
               <Link 
                 href="/" 
-                className="relative px-6 py-2 group backdrop-blur-md bg-black/30 border border-pink-400/30 hover:bg-pink-600/10 transition-colors rounded-md inline-block text-white font-medium"
+                className="relative px-4 sm:px-6 py-2 group backdrop-blur-md bg-black/30 border border-pink-400/30 hover:bg-pink-600/10 transition-colors rounded-md inline-block text-white text-sm sm:text-base font-medium whitespace-nowrap"
               >
-                <span className="relative z-10">Forside</span>
+                Forside
               </Link>
             </li>
             <li>
               <Link 
                 href="/turne" 
-                className="relative px-6 py-2 group backdrop-blur-md bg-black/30 border border-pink-400/30 hover:bg-pink-600/10 transition-colors rounded-md inline-block text-white font-medium"
+                className="relative px-4 sm:px-6 py-2 group backdrop-blur-md bg-black/30 border border-pink-400/30 hover:bg-pink-600/10 transition-colors rounded-md inline-block text-white text-sm sm:text-base font-medium whitespace-nowrap"
               >
-                <span className="relative z-10">Turné</span>
+                Turné
               </Link>
             </li>
             <li>
               <Link 
                 href="/brevkasse" 
-                className="relative px-6 py-2 group backdrop-blur-md bg-pink-600/20 border border-pink-400/50 rounded-md inline-block text-white font-medium"
+                className="relative px-4 sm:px-6 py-2 group backdrop-blur-md bg-pink-600/20 border border-pink-400/50 rounded-md inline-block text-white text-sm sm:text-base font-medium whitespace-nowrap"
               >
-                <span className="relative z-10">Brevkasse</span>
-                <span className="absolute bottom-0 left-0 w-full h-0.5 bg-pink-400 animate-pulse"></span>
+                Brevkasse
               </Link>
             </li>
             <li>
               <Link 
                 href="/opslagstavle" 
-                className="relative px-6 py-2 group backdrop-blur-md bg-black/30 border border-pink-400/30 hover:bg-pink-600/10 transition-colors rounded-md inline-block text-white font-medium"
+                className="relative px-4 sm:px-6 py-2 group backdrop-blur-md bg-black/30 border border-pink-400/30 hover:bg-pink-600/10 transition-colors rounded-md inline-block text-white text-sm sm:text-base font-medium whitespace-nowrap"
               >
-                <span className="relative z-10">Opslagstavle</span>
+                Opslagstavle
               </Link>
             </li>
           </ul>
         </nav>
         
-        {/* Terminal container med en mere moderne look */}
-        <div className="backdrop-blur-md bg-black/40 border border-pink-500/30 rounded-xl overflow-hidden shadow-[0_0_25px_rgba(219,39,119,0.15)]">
-          <div className="p-6">
-            <div className="terminal-content">
-              <Terminal />
-            </div>
-          </div>
+        {/* Terminal container */}
+        <div className="w-full">
+          <Terminal />
         </div>
         
-        {/* Info sektion - lækker oprydning, kun tekstual information */}
-        <div className="mt-10 text-center">
-          <div className="max-w-lg mx-auto bg-black/30 backdrop-blur-md border border-pink-500/20 rounded-lg p-5 shadow-lg">
-            <h3 className="text-lg text-pink-300 mb-2 font-medium">Sådan fungerer brevkassen</h3>
-            <p className="text-white/80 text-sm mb-4">
-              Skriv en besked og se den blive vist på vores digitale opslagstavle. Du kan også tilføje et billede til din besked.
-            </p>
-            <div className="text-xs text-pink-300/70 flex items-center justify-center space-x-4">
+        {/* Info sektion */}
+        <div className="mt-8 sm:mt-10 text-center">
+          <div className="max-w-lg mx-auto px-4 sm:px-6">
+            <div className="text-xs sm:text-sm text-pink-300/70 flex items-center justify-center flex-wrap gap-2 sm:gap-4">
               <span>Krypteret</span>
-              <span>•</span>
+              <span className="hidden sm:inline">•</span>
               <span>Sikker</span>
-              <span>•</span>
+              <span className="hidden sm:inline">•</span>
               <span>Open Source</span>
             </div>
           </div>
         </div>
         
         {/* Footer */}
-        <div className="text-center text-xs text-pink-300/60 mt-6">
+        <div className="text-center text-[10px] sm:text-xs text-pink-300/60 mt-6">
           <p>© {new Date().getFullYear()} BAGGER & FELDTHAUS • STRIK & DRIK • Danmark</p>
-          <p className="text-pink-300/50 text-xs mt-1">// SECURE CONNECTION ESTABLISHED //</p>
         </div>
       </div>
     </main>

@@ -29,6 +29,7 @@ export default function OpslagstavlePage() {
   const [showGlitchEffect, setShowGlitchEffect] = useState(true);
   const [sortType, setSortType] = useState<SortType>(SortType.NEWEST);
   const [likedMessages, setLikedMessages] = useState<{[key: string]: boolean}>({});
+  const [isFullscreen, setIsFullscreen] = useState(false);
   
   // Format time ago for display
   const formatTimeAgo = (dateString: string) => {
@@ -510,81 +511,109 @@ export default function OpslagstavlePage() {
   };
 
   return (
-    <div className="min-h-screen flex min-h-screen flex-col items-center py-4 relative">
-      {/* Feminine pink hacker baggrund - matcher brevkassen */}
-      <div className="fixed inset-0 pointer-events-none z-0">
-        {/* Matrix-lignende baggrund med pink nuancer */}
-        <div className="absolute inset-0 bg-black opacity-80 z-0"></div>
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,transparent,rgba(219,39,119,0.03),transparent)] bg-[length:100px_100%] z-1"></div>
-        <div className="absolute inset-0 bg-[radial-gradient(circle,rgba(219,39,119,0.1)_1px,transparent_1px)] bg-[size:15px_15px] z-2"></div>
-        <div className="absolute inset-0 bg-[linear-gradient(rgba(0,0,0,0.7),transparent_150px,transparent_calc(100%-150px),rgba(0,0,0,0.7))]"></div>
+    <div className={`min-h-screen flex flex-col items-center py-4 relative transition-all duration-500 ${isFullscreen ? 'fullscreen-mode' : ''}`}>
+      {/* Nyt dynamisk baggrunds design */}
+      <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+        {/* Base layer - Deep space effect */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black via-purple-950/30 to-black"></div>
         
-        {/* Scanline effekt */}
-        <div className="absolute inset-0 pointer-events-none z-10 opacity-10 bg-[repeating-linear-gradient(to_bottom,transparent,transparent_2px,rgba(255,0,255,0.05)_3px,transparent_4px)]"></div>
-      </div>
-      
-      {/* Glitch effekt når nye beskeder kommer ind */}
-      {showGlitchEffect && (
-        <div className="fixed inset-0 z-20 pointer-events-none animate-glitch-opacity mix-blend-overlay bg-gradient-to-r from-pink-500/20 via-transparent to-pink-300/20"></div>
-      )}
+        {/* Dynamic nebula effect */}
+        <div className="absolute inset-0">
+          <div className="absolute inset-0 bg-gradient-to-tr from-pink-500/5 via-purple-500/10 to-blue-500/5 animate-nebula"></div>
+          <div className="absolute inset-0 bg-gradient-to-bl from-purple-500/10 via-pink-500/5 to-blue-500/5 animate-nebula-reverse"></div>
+        </div>
 
-      {/* Navigation */}
-      <nav className="mt-10 mb-8">
-        <ul className="flex flex-wrap justify-center gap-3">
-          <li>
-            <Link 
-              href="/" 
-              className="relative px-6 py-2 group backdrop-blur-md bg-black/30 border border-pink-400/30 hover:bg-pink-600/10 transition-colors rounded-md inline-block text-white font-medium"
-            >
-              <span className="relative z-10">Forside</span>
-            </Link>
-          </li>
-          <li>
-            <Link 
-              href="/turne" 
-              className="relative px-6 py-2 group backdrop-blur-md bg-black/30 border border-pink-400/30 hover:bg-pink-600/10 transition-colors rounded-md inline-block text-white font-medium"
-            >
-              <span className="relative z-10">Turné</span>
-            </Link>
-          </li>
-          <li>
-            <Link 
-              href="/brevkasse" 
-              className="relative px-6 py-2 group backdrop-blur-md bg-black/30 border border-pink-400/30 hover:bg-pink-600/10 transition-colors rounded-md inline-block text-white font-medium"
-            >
-              <span className="relative z-10">Brevkasse</span>
-            </Link>
-          </li>
-          <li>
-            <Link 
-              href="/opslagstavle" 
-              className="relative px-6 py-2 group backdrop-blur-md bg-pink-600/20 border border-pink-400/50 rounded-md inline-block text-white font-medium"
-            >
-              <span className="relative z-10">Opslagstavle</span>
-              <span className="absolute bottom-0 left-0 w-full h-0.5 bg-pink-400 animate-pulse"></span>
-            </Link>
-          </li>
-        </ul>
-      </nav>
+        {/* Floating orbs */}
+        <div className="absolute inset-0">
+          {/* Large orb */}
+          <div className="absolute right-[10%] top-[20%] w-[40vw] h-[40vw] rounded-full bg-gradient-to-br from-purple-500/10 via-pink-500/5 to-transparent blur-3xl animate-float-slow"></div>
+          {/* Medium orb */}
+          <div className="absolute left-[15%] top-[40%] w-[25vw] h-[25vw] rounded-full bg-gradient-to-tr from-pink-500/10 via-purple-500/5 to-transparent blur-2xl animate-float-medium"></div>
+          {/* Small orb */}
+          <div className="absolute right-[25%] bottom-[20%] w-[15vw] h-[15vw] rounded-full bg-gradient-to-r from-purple-500/10 via-pink-500/5 to-transparent blur-xl animate-float-fast"></div>
+        </div>
 
-      {/* Main Content */}
-      <div className="w-full max-w-6xl mx-auto p-4 relative z-10">
-        {/* Header med stiliseret titel - matcher brevkassen */}
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold">
-            <span className="bg-clip-text text-transparent bg-gradient-to-r from-pink-500 via-purple-400 to-pink-300">
-              STRIK OPSLAGSTAVLE
-            </span>
-          </h1>
-          <div className="h-1 w-20 bg-gradient-to-r from-pink-500 to-purple-400 mx-auto mt-2"></div>
-          <p className="text-pink-300/80 text-sm mt-3 font-medium">// SECURE CONNECTION ESTABLISHED //</p>
+        {/* Animated grid overlay */}
+        <div className="absolute inset-0 bg-[linear-gradient(90deg,transparent_39px,rgba(219,39,119,0.05)_40px),linear-gradient(transparent_39px,rgba(219,39,119,0.05)_40px)] bg-[size:40px_40px] animate-grid-scroll opacity-20"></div>
+        
+        {/* Scanlines */}
+        <div className="absolute inset-0 bg-[linear-gradient(to_bottom,transparent_49%,rgba(219,39,119,0.05)_50%,transparent_51%)] bg-[size:100%_4px]"></div>
+        
+        {/* Dynamic light rays */}
+        <div className="absolute inset-0">
+          <div className="absolute inset-0 bg-[conic-gradient(from_0deg_at_50%_50%,transparent_0deg,rgba(219,39,119,0.1)_90deg,transparent_180deg)] animate-ray-rotate"></div>
+          <div className="absolute inset-0 bg-[conic-gradient(from_180deg_at_50%_50%,transparent_0deg,rgba(147,51,234,0.1)_90deg,transparent_180deg)] animate-ray-rotate-reverse"></div>
         </div>
         
-        {/* Sorteringsknap - opdateret til pink tema */}
-        <div className="flex justify-end mb-6">
+        {/* Subtle noise texture */}
+        <div className="absolute inset-0 bg-noise opacity-[0.02] mix-blend-overlay"></div>
+        
+        {/* Vignette effect */}
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,transparent_20%,rgba(0,0,0,0.7)_100%)]"></div>
+        
+        {/* Glowing edges */}
+        <div className="absolute inset-0">
+          <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-pink-500/20 to-transparent"></div>
+          <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-pink-500/20 to-transparent"></div>
+          <div className="absolute top-0 bottom-0 left-0 w-px bg-gradient-to-b from-transparent via-pink-500/20 to-transparent"></div>
+          <div className="absolute top-0 bottom-0 right-0 w-px bg-gradient-to-b from-transparent via-pink-500/20 to-transparent"></div>
+        </div>
+      </div>
+
+      {/* Navigation og Header - skjules i fuldskærm */}
+      <div className={`w-full transition-all duration-500 ${isFullscreen ? 'opacity-0 pointer-events-none h-0 overflow-hidden' : 'opacity-100'}`}>
+        {/* Existing navigation and header */}
+        <nav className="mt-10 mb-8">
+          <ul className="flex flex-wrap justify-center gap-3">
+            <li>
+              <Link 
+                href="/" 
+                className="relative px-6 py-2 group backdrop-blur-md bg-black/30 border border-pink-400/30 hover:bg-pink-600/10 transition-colors rounded-md inline-block text-white font-medium"
+              >
+                <span className="relative z-10">Forside</span>
+              </Link>
+            </li>
+            <li>
+              <Link 
+                href="/turne" 
+                className="relative px-6 py-2 group backdrop-blur-md bg-black/30 border border-pink-400/30 hover:bg-pink-600/10 transition-colors rounded-md inline-block text-white font-medium"
+              >
+                <span className="relative z-10">Turné</span>
+              </Link>
+            </li>
+            <li>
+              <Link 
+                href="/brevkasse" 
+                className="relative px-6 py-2 group backdrop-blur-md bg-black/30 border border-pink-400/30 hover:bg-pink-600/10 transition-colors rounded-md inline-block text-white font-medium"
+              >
+                <span className="relative z-10">Brevkasse</span>
+              </Link>
+            </li>
+            <li>
+              <Link 
+                href="/opslagstavle" 
+                className="relative px-6 py-2 group backdrop-blur-md bg-pink-600/20 border border-pink-400/50 rounded-md inline-block text-white font-medium"
+              >
+                <span className="relative z-10">Opslagstavle</span>
+                <span className="absolute bottom-0 left-0 w-full h-0.5 bg-pink-400 animate-pulse"></span>
+              </Link>
+            </li>
+          </ul>
+        </nav>
+
+        <div className="w-full max-w-6xl mx-auto p-4 relative z-10">
+          {/* ... existing header ... */}
+        </div>
+      </div>
+
+      {/* Main Content med beskeder */}
+      <div className={`w-full relative z-10 transition-all duration-500 ${isFullscreen ? 'pt-0 px-4' : 'max-w-6xl p-4'}`}>
+        {/* Kontrolpanel med sortering og fuldskærm */}
+        <div className="flex justify-between items-center mb-6 backdrop-blur-md bg-black/40 border border-pink-500/30 rounded-xl p-3">
+          {/* Sorteringsknap */}
           <button 
             onClick={toggleSortType}
-            className="relative px-6 py-2 backdrop-blur-md bg-black/30 border border-pink-400/30 hover:bg-pink-600/10 transition-colors rounded-md inline-block text-white font-medium"
+            className="relative px-4 py-2 backdrop-blur-md bg-black/30 border border-pink-400/30 hover:bg-pink-600/10 transition-colors rounded-md inline-block text-white font-medium"
           >
             <span className="flex items-center gap-2">
               {sortType === SortType.NEWEST ? (
@@ -596,13 +625,32 @@ export default function OpslagstavlePage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                 </svg>
               )}
-              <span>Sortér efter: <span className="text-pink-300 font-medium">{sortType === SortType.NEWEST ? 'Nyeste' : 'Mest populære'}</span></span>
+              <span>Sortér: <span className="text-pink-300 font-medium">{sortType === SortType.NEWEST ? 'Nyeste' : 'Mest populære'}</span></span>
+            </span>
+          </button>
+
+          {/* Fuldskærm toggle */}
+          <button 
+            onClick={() => setIsFullscreen(!isFullscreen)}
+            className="relative px-4 py-2 backdrop-blur-md bg-black/30 border border-pink-400/30 hover:bg-pink-600/10 transition-colors rounded-md inline-block text-white font-medium"
+          >
+            <span className="flex items-center gap-2">
+              {isFullscreen ? (
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-pink-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 9L4 4m0 0l5 5M4 4v7m11-7h7m0 0l-5 5m5-5v7m-7 11l5-5m0 0l-5-5m5 5H4m7 0h7m0 0l-5 5m5-5v-7" />
+                </svg>
+              ) : (
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-pink-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+                </svg>
+              )}
+              <span>{isFullscreen ? 'Afslut fuldskærm' : 'Fuldskærm'}</span>
             </span>
           </button>
         </div>
 
-        {/* Messages Display */}
-        <div className="mb-16">
+        {/* Messages grid - justeret layout i fuldskærm */}
+        <div className={`grid gap-8 mb-16 ${isFullscreen ? 'grid-cols-1 max-w-3xl mx-auto' : 'grid-cols-1'}`}>
           {loading && (
             <div className="flex justify-center items-center py-12 backdrop-blur-md bg-black/40 border border-pink-500/30 rounded-xl">
               <div className="cyber-spinner"></div>
@@ -633,103 +681,119 @@ export default function OpslagstavlePage() {
             </div>
           )}
           
-          {/* Beskeder - sorteret efter valgt kriterie - opdateret til pink tema */}
-          <div className="flex flex-col gap-6 mt-4">
-            {messages.map((msg, index) => (
-              <div 
-                key={msg.id} 
-                className="backdrop-blur-md bg-black/40 border border-pink-500/30 rounded-xl overflow-hidden shadow-[0_0_25px_rgba(219,39,119,0.15)] hover:shadow-lg transition-all duration-500 group relative"
-              >
-                {/* Besked-badges */}
-                <div className="absolute top-3 right-3 flex gap-2 z-10">
-                  {sortType === SortType.NEWEST && index === 0 && (
-                    <div className="bg-gradient-to-r from-pink-500 to-purple-600 text-white text-xs px-3 py-1 rounded-full shadow-lg">
-                      Nyeste
-                    </div>
-                  )}
-                  {sortType === SortType.MOST_LIKED && index === 0 && msg.likes > 0 && (
-                    <div className="bg-gradient-to-r from-pink-500 to-purple-400 text-white text-xs px-3 py-1 rounded-full shadow-lg">
-                      Mest populær
-                    </div>
-                  )}
-                </div>
-                
-                <div className="flex flex-col md:flex-row">
-                  {/* Message content section */}
-                  <div className="flex-1 p-6">
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="flex items-center">
-                        <div className="h-10 w-10 rounded-full bg-gradient-to-br from-pink-500 to-purple-700 flex items-center justify-center text-white font-bold text-lg shadow-md">
-                          {msg.navn.charAt(0).toUpperCase()}
-                        </div>
-                        <div className="ml-3">
-                          <h3 className="text-white font-semibold text-lg">{msg.navn}</h3>
-                          <div className="flex items-center text-sm text-pink-200/70">
-                            <span>{formatTimeAgo(msg.created_at)}</span>
-                            <span className="mx-1.5 text-white/30">•</span>
-                            <span className="text-pink-300/70">ID: {msg.id.substring(0, 6)}</span>
-                          </div>
-                        </div>
+          {/* Beskeder - sorteret efter valgt kriterie */}
+          {messages.map((msg, index) => (
+            <div 
+              key={msg.id} 
+              className={`group/card backdrop-blur-md bg-black/40 rounded-xl overflow-hidden transition-all duration-500 
+                ${isFullscreen 
+                  ? 'hover:scale-[1.02] hover:-translate-y-1 hover:shadow-[0_0_30px_rgba(219,39,119,0.2)]' 
+                  : 'hover:shadow-[0_0_25px_rgba(219,39,119,0.15)]'
+                }`}
+            >
+              {/* Besked header */}
+              <div className="p-5 border-b border-pink-500/10 bg-black/20">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    {/* Avatar */}
+                    <div className="relative">
+                      <div className="h-11 w-11 rounded-full bg-gradient-to-br from-pink-500 to-purple-700 flex items-center justify-center text-white font-bold text-lg shadow-md">
+                        {msg.navn.charAt(0).toUpperCase()}
                       </div>
-                      
-                      {/* Like button */}
-                      <button 
-                        onClick={() => handleLikeToggle(msg.id)}
-                        className={`flex items-center gap-1.5 px-4 py-2 rounded-full transition-all duration-300 ${
-                          likedMessages[msg.id] 
-                            ? 'bg-pink-500/30 text-pink-300 border border-pink-500/50' 
-                            : 'bg-white/5 text-white/70 hover:bg-white/10 border border-transparent hover:border-pink-400/30'
-                        }`}
-                      >
-                        <svg 
-                          xmlns="http://www.w3.org/2000/svg" 
-                          className={`h-5 w-5 transition-transform duration-300 ${likedMessages[msg.id] ? 'scale-110 animate-pulse' : ''}`}
-                          fill={likedMessages[msg.id] ? "currentColor" : "none"} 
-                          viewBox="0 0 24 24" 
-                          stroke="currentColor"
-                        >
-                          <path 
-                            strokeLinecap="round" 
-                            strokeLinejoin="round" 
-                            strokeWidth={2} 
-                            d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" 
-                          />
-                        </svg>
-                        <span className={`text-sm font-medium transition-all duration-300 ${msg.likes > 0 ? (likedMessages[msg.id] ? 'text-pink-200' : 'text-pink-300/70') : ''}`}>
-                          {msg.likes || 0}
-                        </span>
-                      </button>
+                      <div className="absolute inset-0 rounded-full bg-gradient-to-br from-pink-500 to-purple-700 opacity-30 blur-md -z-10"></div>
                     </div>
                     
-                    <div className="text-white/90 whitespace-pre-wrap text-base leading-relaxed mt-3">
-                      {/* Fjern [LIKES:X] markering fra vises besked hvis det findes */}
-                      {msg.besked ? msg.besked.replace(/\n\n\[LIKES:\d+\]$/, '') : ''}
+                    {/* User info */}
+                    <div>
+                      <h3 className="text-white font-semibold text-lg tracking-wide leading-none mb-1">
+                        {msg.navn}
+                      </h3>
+                      <div className="flex items-center gap-3 text-sm">
+                        <span className="text-pink-300/70">{formatTimeAgo(msg.created_at)}</span>
+                        <span className="text-pink-500/50">•</span>
+                        <span className="font-mono text-xs text-pink-300/50">#{msg.id.substring(0, 6)}</span>
+                      </div>
                     </div>
                   </div>
-                  
-                  {/* Image section (if any) */}
-                  {msg.billede && (
-                    <div className="md:w-1/3 bg-black/30 relative group/img border-t md:border-t-0 md:border-l border-pink-500/20">
-                      <div className="absolute inset-0 bg-gradient-to-br from-pink-600/10 to-transparent pointer-events-none z-10"></div>
+
+                  {/* Badges */}
+                  <div className="flex items-center gap-2">
+                    {sortType === SortType.NEWEST && index === 0 && (
+                      <div className="bg-gradient-to-r from-pink-500 to-purple-600 text-white text-xs px-3 py-1 rounded-full shadow-lg">
+                        Nyeste
+                      </div>
+                    )}
+                    {sortType === SortType.MOST_LIKED && index === 0 && msg.likes > 0 && (
+                      <div className="bg-gradient-to-r from-pink-500 to-purple-400 text-white text-xs px-3 py-1 rounded-full shadow-lg">
+                        Mest populær
+                      </div>
+                    )}
+                    
+                    {/* Like button */}
+                    <button 
+                      onClick={() => handleLikeToggle(msg.id)}
+                      className={`flex items-center gap-1.5 px-4 py-2 rounded-full transition-all duration-300 
+                        ${likedMessages[msg.id] 
+                          ? 'bg-pink-500/30 text-pink-300 shadow-[0_0_15px_rgba(219,39,119,0.3)]' 
+                          : 'bg-black/20 text-white/70 hover:bg-white/10'
+                        }`}
+                    >
+                      <svg 
+                        xmlns="http://www.w3.org/2000/svg" 
+                        className={`h-5 w-5 transition-transform duration-300 ${likedMessages[msg.id] ? 'scale-110 animate-pulse' : ''}`}
+                        fill={likedMessages[msg.id] ? "currentColor" : "none"} 
+                        viewBox="0 0 24 24" 
+                        stroke="currentColor"
+                      >
+                        <path 
+                          strokeLinecap="round" 
+                          strokeLinejoin="round" 
+                          strokeWidth={2} 
+                          d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" 
+                        />
+                      </svg>
+                      <span className={`text-sm font-medium transition-all duration-300 ${msg.likes > 0 ? (likedMessages[msg.id] ? 'text-pink-200' : 'text-pink-300/70') : ''}`}>
+                        {msg.likes || 0}
+                      </span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Message content */}
+              <div className="p-6">
+                <div className="text-white/90 whitespace-pre-wrap text-base leading-relaxed">
+                  {msg.besked ? msg.besked.replace(/\n\n\[LIKES:\d+\]$/, '') : ''}
+                </div>
+              </div>
+
+              {/* Image section */}
+              {msg.billede && (
+                <div className="relative w-full bg-black/30">
+                  <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/20 pointer-events-none z-10"></div>
+                  <div className="relative w-full">
+                    <div className="relative aspect-video w-full group/img">
                       <Image 
                         src={msg.billede}
                         alt={`Billede fra ${msg.navn}`}
-                        width={400}
-                        height={300}
-                        className="object-contain w-full h-full max-h-[300px] transition-transform duration-700 group-hover/img:scale-[1.03]"
+                        fill
+                        className="object-contain transition-transform duration-700 group-hover/img:scale-[1.02]"
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 70vw"
                       />
+                      <div className="absolute inset-0 opacity-0 group-hover/img:opacity-100 transition-opacity duration-500 bg-gradient-to-r from-pink-500/5 via-transparent to-pink-500/5"></div>
                     </div>
-                  )}
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              )}
+            </div>
+          ))}
         </div>
-        
-        {/* Footer */}
+      </div>
+
+      {/* Footer - skjules i fuldskærm */}
+      <div className={`transition-all duration-500 ${isFullscreen ? 'opacity-0 pointer-events-none h-0 overflow-hidden' : 'opacity-100'}`}>
         <div className="text-center text-xs text-pink-300/60 mt-6">
           <p>© {new Date().getFullYear()} BAGGER & FELDTHAUS • STRIK & DRIK • Danmark</p>
-          <p className="text-pink-300/50 text-xs mt-1">// SECURE CONNECTION ESTABLISHED //</p>
         </div>
       </div>
     </div>

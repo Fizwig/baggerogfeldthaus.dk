@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 
 const ABOUT_TEXT = [
   'Strik & Drik er en unik oplevelse, hvor strik og comedy mødes i en perfekt kombination.',
@@ -19,7 +19,7 @@ const ABOUT_TEXT = [
   'Alle er velkomne - fra nybegyndere til erfarne strikkere.'
 ];
 
-const NeuAboutUs = () => {
+const AboutUs = () => {
   return (
     <div className="space-y-6">
       <div className="neu-text-container">
@@ -75,6 +75,7 @@ const NeuAboutUs = () => {
   );
 };
 
+export default AboutUs; 
 export default function AboutUs() {
   const [visibleLines, setVisibleLines] = useState<number>(0);
   

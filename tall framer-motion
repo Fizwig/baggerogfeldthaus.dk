@@ -1,0 +1,5 @@
+[33mcommit dc8047311bfdfb89cd3c8a691768878e71aaa967[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m)[m
+Author: Dit Navn <din-email@example.com>
+Date:   Fri Mar 21 15:55:36 2025 +0100
+
+    Fix AboutUs component type declaration error

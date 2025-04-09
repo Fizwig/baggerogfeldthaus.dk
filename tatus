@@ -1,0 +1,30 @@
+warning: in the working copy of 'app/components/AboutUs.tsx', LF will be replaced by CRLF the next time Git touches it
+[1mdiff --git a/app/components/AboutUs.tsx b/app/components/AboutUs.tsx[m
+[1mindex f51be950..b65d90c2 100644[m
+[1m--- a/app/components/AboutUs.tsx[m
+[1m+++ b/app/components/AboutUs.tsx[m
+[36m@@ -1,6 +1,6 @@[m
+ 'use client';[m
+ [m
+[31m-import React, { useState, useEffect } from 'react';[m
+[32m+[m[32mimport React from 'react';[m
+ [m
+ const ABOUT_TEXT = [[m
+   'Strik & Drik er en unik oplevelse, hvor strik og comedy mødes i en perfekt kombination.',[m
+[36m@@ -19,7 +19,7 @@[m [mconst ABOUT_TEXT = [[m
+   'Alle er velkomne - fra nybegyndere til erfarne strikkere.'[m
+ ];[m
+ [m
+[31m-const NeuAboutUs = () => {[m
+[32m+[m[32mconst AboutUs = () => {[m
+   return ([m
+     <div className="space-y-6">[m
+       <div className="neu-text-container">[m
+[36m@@ -75,6 +75,7 @@[m [mconst NeuAboutUs = () => {[m
+   );[m
+ };[m
+ [m
+[32m+[m[32mexport default AboutUs;[m[41m [m
+ export default function AboutUs() {[m
+   const [visibleLines, setVisibleLines] = useState<number>(0);[m
+   [m
