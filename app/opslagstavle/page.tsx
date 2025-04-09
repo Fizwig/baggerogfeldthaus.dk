@@ -778,46 +778,45 @@ export default function OpslagstavlePage() {
                           // Format URL correctly - handle both absolute and relative paths
                           let imageUrl = msg.billede;
                           
-                          // Log the original image URL for debugging
-                          console.log(`Original image URL for ${msg.id}: ${imageUrl}`);
+                          // Detaljeret logning af billede URL
+                          console.log(`Forsøger at vise billede for ${msg.id}`);
+                          console.log(`Original billede URL: "${imageUrl}"`);
                           
                           // Make sure we have valid URL format
                           if (!imageUrl) {
                             throw new Error('Manglende URL');
                           }
                           
+                          // Vis et simpelt img-tag i stedet for Next.js Image component
+                          // Dette omgår Next.js' Image optimering som kan give problemer med eksterne URLs
                           return (
-                            <>
-                              <Image 
+                            <div className="w-full h-full flex items-center justify-center">
+                              <img 
                                 src={imageUrl}
                                 alt={`Billede fra ${msg.navn}`}
-                                fill
-                                className="object-contain transition-transform duration-700 group-hover/img:scale-[1.02]"
-                                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 70vw"
-                                loading="lazy"
-                                unoptimized={true} // Disable Next.js image optimization for Supabase URLs
+                                className="max-h-[500px] max-w-full object-contain"
                                 onError={(e) => {
-                                  console.error(`Image failed to load: ${imageUrl}`);
+                                  console.error(`Billede kunne ikke indlæses: ${imageUrl}`);
                                   const target = e.target as HTMLImageElement;
                                   target.style.display = 'none';
                                   const parent = target.parentElement;
                                   if (parent) {
-                                    // Insert a fallback message
+                                    // Indsæt fejlbesked med detaljeret fejlinformation
                                     const errorMsg = document.createElement('div');
                                     errorMsg.className = 'text-center py-6 text-pink-400';
-                                    errorMsg.innerHTML = 'Billedet kunne ikke indlæses<br><span class="text-xs text-pink-300/70">Prøv at genindlæse siden</span>';
+                                    errorMsg.innerHTML = `
+                                      Billedet kunne ikke indlæses<br>
+                                      <span class="text-xs text-pink-300/70">URL: ${imageUrl.substring(0, 50)}...</span><br>
+                                      <span class="text-xs text-pink-300/70">Prøv at genindlæse siden</span>
+                                    `;
                                     parent.appendChild(errorMsg);
-                                    
-                                    // Log details for debugging
-                                    console.error(`Image error details for: ${imageUrl}`, e);
                                   }
                                 }}
                               />
-                              <div className="absolute inset-0 opacity-0 group-hover/img:opacity-100 transition-opacity duration-500 bg-gradient-to-r from-pink-500/5 via-transparent to-pink-500/5"></div>
-                            </>
+                            </div>
                           );
                         } catch (error) {
-                          console.error('Error handling image render:', error);
+                          console.error('Fejl ved håndtering af billedrendering:', error);
                           return (
                             <div className="flex items-center justify-center h-full">
                               <div className="text-pink-400 p-4 text-center">

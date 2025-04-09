@@ -51,8 +51,9 @@ export async function POST(request: NextRequest) {
     // Prøv at uploade til Supabase
     let supabaseUrl = '';
     try {
-      // Brug de specifikke mapper der matcher policies fra Supabase dashboard
+      // Brug de specifikke mapper der matcher præcist med policies fra Supabase dashboard
       const bucketName = 'brevkasse-billeder';
+      // VIGTIGT: Brug præcis de samme navne som i Supabase policies
       const policyFolders = ['p06g4u_0', 'p06g4u_1', 'p06g4u_2', 'p06g4u_3'];
       let uploaded = false;
       

@@ -158,6 +158,8 @@ export default function Terminal() {
       // Log the image URL for debugging
       if (messageData.image_url) {
         console.log('Billede URL der gemmes:', messageData.image_url);
+        console.log('Billede URL type:', typeof messageData.image_url);
+        console.log('Billede URL længde:', messageData.image_url.length);
       }
       
       // Create object for database with correct column names
@@ -180,6 +182,10 @@ export default function Terminal() {
 
       if (error) {
         console.error('Fejl ved indsættelse af besked:', error);
+        console.error('Fejlkode:', error.code);
+        console.error('Fejlbesked:', error.message);
+        console.error('Fejldetaljer:', error.details);
+        
         if (error.code === '23505') { // Unique constraint error
           throw new Error('En lignende besked er allerede sendt');
         } else if (error.code === '23503') { // Foreign key error
@@ -196,6 +202,12 @@ export default function Terminal() {
       }
       
       console.log('Besked gemt i databasen:', data);
+      
+      // Log det gemte billede URL for at verificere at det er korrekt
+      if (data.billede) {
+        console.log('Billede URL gemt i database:', data.billede);
+      }
+      
       return true;
     } catch (error) {
       console.error('Fejl ved gemning af besked:', error);
@@ -221,15 +233,25 @@ export default function Terminal() {
       formData.append('file', file);
       
       // Upload using fetch API with FormData
+      // Log hele processen for fejlsøgning
+      console.log('Sender billede til API endpoint...');
       const response = await fetch('/api/simpleupload', {
         method: 'POST',
         body: formData
       });
       
+      console.log('API svar status:', response.status);
+      
       if (!response.ok) {
-        const errorData = await response.json().catch(() => null) || await response.text();
-        console.error('API upload fejl:', errorData);
-        throw new Error(`Kunne ikke uploade billede: ${response.status}`);
+        let errorInfo = 'Ukendt fejl';
+        try {
+          const errorData = await response.json();
+          errorInfo = JSON.stringify(errorData);
+        } catch {
+          errorInfo = await response.text();
+        }
+        console.error('API upload fejl:', errorInfo);
+        throw new Error(`Kunne ikke uploade billede: ${response.status} - ${errorInfo}`);
       }
       
       const result = await response.json();
@@ -238,6 +260,11 @@ export default function Terminal() {
       if (!result.url) {
         throw new Error('Ingen URL returneret fra server');
       }
+      
+      // Log den endelige URL med detaljer
+      console.log('Billede URL modtaget fra server:', result.url);
+      console.log('URL type:', typeof result.url);
+      console.log('URL længde:', result.url.length);
       
       // Return the public URL from the server response
       return result.url;

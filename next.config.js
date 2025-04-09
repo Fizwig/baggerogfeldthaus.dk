@@ -9,6 +9,11 @@ const nextConfig = {
         pathname: '/storage/v1/object/public/**',
       },
     ],
+    unoptimized: true,
+  },
+  reactStrictMode: true,
+  experimental: {
+    serverComponentsExternalPackages: ['@prisma/client'],
   },
 };
 
