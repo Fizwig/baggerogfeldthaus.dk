@@ -222,60 +222,98 @@ export default function Terminal() {
   // Upload image to Supabase Storage
   const uploadImageToSupabase = async (file: File): Promise<string> => {
     try {
-      console.log('Starter upload af billede med størrelse:', file.size, 'bytes');
+      console.log('📸 Starter upload af billede:', file.name, 'størrelse:', file.size, 'bytes', 'type:', file.type);
       
       if (!file || file.size === 0) {
         throw new Error('Ugyldig fil eller tom fil');
       }
       
-      // Use formData for upload instead of JSON/base64
+      if (file.size > 10 * 1024 * 1024) { // 10MB maksimum
+        throw new Error('Filen er for stor (maks 10MB)');
+      }
+      
+      // Log accepterede filtyper
+      const acceptedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+      if (!acceptedTypes.includes(file.type.toLowerCase())) {
+        console.warn('⚠️ Ikke-standard filtype:', file.type);
+      }
+      
+      // Brug FormData til upload
       const formData = new FormData();
       formData.append('file', file);
       
-      // Upload using fetch API with FormData
-      // Log hele processen for fejlsøgning
-      console.log('Sender billede til API endpoint...');
+      // Udførlig logging af upload-processen
+      console.log('🚀 Sender billede til API endpoint...');
+      
+      // Vis upload status i terminalen
+      setTerminalHistory(prev => [...prev, '📤 Uploader billede til server...']);
+      
+      const uploadStartTime = Date.now();
       const response = await fetch('/api/simpleupload', {
         method: 'POST',
         body: formData
       });
       
-      console.log('API svar status:', response.status);
+      const uploadTime = Date.now() - uploadStartTime;
+      console.log(`⏱️ Upload tog ${uploadTime}ms, status:`, response.status);
       
+      // Håndter fejl fra API
       if (!response.ok) {
-        let errorInfo = 'Ukendt fejl';
+        let errorMessage = `Server fejl (${response.status})`;
         try {
           const errorData = await response.json();
-          errorInfo = JSON.stringify(errorData);
+          console.error('❌ API fejl:', errorData);
+          errorMessage = errorData.error || errorMessage;
         } catch {
-          errorInfo = await response.text();
+          const errorText = await response.text();
+          console.error('❌ API fejltekst:', errorText || 'Ingen fejltekst');
         }
-        console.error('API upload fejl:', errorInfo);
-        throw new Error(`Kunne ikke uploade billede: ${response.status} - ${errorInfo}`);
+        
+        setTerminalHistory(prev => [...prev, `❌ Upload fejl: ${errorMessage}`]);
+        throw new Error(`Upload fejl: ${errorMessage}`);
       }
       
-      const result = await response.json();
-      console.log('Upload API svar:', result);
+      // Parse API svar
+      let result;
+      try {
+        result = await response.json();
+        console.log('📩 Upload API svar:', result);
+      } catch (parseError) {
+        console.error('❌ Fejl ved parsing af API svar:', parseError);
+        throw new Error('Kunne ikke forstå serverens svar');
+      }
       
+      // Kontroller resultat
       if (!result.url) {
-        throw new Error('Ingen URL returneret fra server');
+        console.error('❌ Ingen URL i API svar:', result);
+        throw new Error('Ingen billede-URL returneret fra serveren');
       }
       
-      // Log den endelige URL med detaljer
-      console.log('Billede URL modtaget fra server:', result.url);
-      console.log('URL type:', typeof result.url);
-      console.log('URL længde:', result.url.length);
+      // Success!
+      const imageUrl = result.url;
+      console.log('✅ Billede uploadet, URL:', imageUrl);
+      setTerminalHistory(prev => [...prev, '✅ Billede uploadet!']);
       
-      // Return the public URL from the server response
-      return result.url;
+      // Log URL detaljer for fejlsøgning
+      console.log('🔍 URL type:', typeof imageUrl);
+      console.log('🔍 URL længde:', imageUrl.length);
+      console.log('🔍 URL start:', imageUrl.substring(0, 30));
+      console.log('🔍 URL slut:', imageUrl.substring(imageUrl.length - 30));
+      
+      // Test URL tilgængelighed ved at lave et HEAD request
+      try {
+        const testFetch = await fetch(imageUrl, { method: 'HEAD' });
+        console.log('🧪 URL test resultat:', testFetch.status, testFetch.ok);
+      } catch (testError) {
+        console.warn('⚠️ URL test fejl (ignoreret):', testError);
+      }
+      
+      // Returner den offentlige URL
+      return imageUrl;
     } catch (error) {
-      console.error('Fejl ved upload af billede:', error);
-      
-      if (error instanceof Error) {
-        console.error('Fejlbesked:', error.message);
-      }
-      
-      throw new Error('Kunne ikke uploade billede. Prøv venligst igen.');
+      console.error('❌ Fejl ved upload af billede:', error);
+      setTerminalHistory(prev => [...prev, `❌ ${error instanceof Error ? error.message : 'Ukendt fejl ved upload'}`]);
+      throw error;
     }
   };
   

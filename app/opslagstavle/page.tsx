@@ -30,6 +30,9 @@ export default function OpslagstavlePage() {
   const [sortType, setSortType] = useState<SortType>(SortType.NEWEST);
   const [likedMessages, setLikedMessages] = useState<{[key: string]: boolean}>({});
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [debugMode, setDebugMode] = useState(false);
+  const [testUrl, setTestUrl] = useState('');
+  const [corsStatus, setCorsStatus] = useState<string>('');
   
   // Format time ago for display
   const formatTimeAgo = (dateString: string) => {
@@ -510,6 +513,67 @@ export default function OpslagstavlePage() {
     );
   };
 
+  // Funktion til at teste et billede URL direkte
+  const testImageUrl = async () => {
+    try {
+      // Test 1: Direkte ping til URL med fetch
+      try {
+        const response = await fetch(testUrl, { method: 'HEAD' });
+        setCorsStatus(`Status: ${response.status}, OK: ${response.ok}, Type: ${response.headers.get('content-type')}`);
+      } catch (err) {
+        setCorsStatus(`Fetch fejl: ${err instanceof Error ? err.message : 'Ukendt fejl'}`);
+      }
+    } catch (error) {
+      console.error('Fejl i test:', error);
+    }
+  };
+
+  // CORS test funktion
+  const testCors = async () => {
+    try {
+      setCorsStatus('Tester...');
+      
+      // Test for Supabase Storage URL
+      if (testUrl.includes('supabase.co') && testUrl.includes('/storage/v1/')) {
+        // Log de specifikke headers for en bedre forståelse
+        try {
+          const response = await fetch(testUrl, { method: 'HEAD' });
+          let headerInfo = '';
+          response.headers.forEach((value, key) => {
+            headerInfo += `${key}: ${value}\n`;
+          });
+          setCorsStatus(`CORS Status: ${response.status}\nHeaders:\n${headerInfo}`);
+        } catch (error) {
+          setCorsStatus(`CORS Error: ${error instanceof Error ? error.message : String(error)}`);
+        }
+      } else {
+        setCorsStatus('Ikke en Supabase URL');
+      }
+    } catch (error) {
+      setCorsStatus(`Fejl: ${error instanceof Error ? error.message : String(error)}`);
+    }
+  };
+
+  // Test for at generere en public URL fra storage bucket direkte
+  const generateTestUrl = async () => {
+    try {
+      // Opret en test URL ved at bruge Supabase's offentlige URL-generator
+      const { data } = supabase.storage
+        .from('brevkasse-billeder')
+        .getPublicUrl('p06g4u_0/test.jpg');
+        
+      if (data && data.publicUrl) {
+        setTestUrl(data.publicUrl);
+        console.log('Generated test URL:', data.publicUrl);
+      } else {
+        setTestUrl('Kunne ikke generere URL');
+      }
+    } catch (error) {
+      console.error('URL generation error:', error);
+      setTestUrl(`Fejl: ${error instanceof Error ? error.message : String(error)}`);
+    }
+  };
+
   return (
     <div className={`min-h-screen flex flex-col items-center py-4 relative transition-all duration-500 ${isFullscreen ? 'fullscreen-mode' : ''}`}>
       {/* Nyt dynamisk baggrunds design */}
@@ -558,6 +622,89 @@ export default function OpslagstavlePage() {
           <div className="absolute top-0 bottom-0 left-0 w-px bg-gradient-to-b from-transparent via-pink-500/20 to-transparent"></div>
           <div className="absolute top-0 bottom-0 right-0 w-px bg-gradient-to-b from-transparent via-pink-500/20 to-transparent"></div>
         </div>
+      </div>
+
+      {/* Debug Panel - skjult som standard */}
+      <div className="w-full max-w-6xl mx-auto mb-4">
+        <button 
+          onClick={() => setDebugMode(!debugMode)}
+          className="px-3 py-1 bg-pink-600/20 text-pink-300 text-xs rounded-md mb-2"
+        >
+          {debugMode ? 'Skjul Fejlsøgning' : 'Vis Fejlsøgning'}
+        </button>
+        
+        {debugMode && (
+          <div className="p-4 backdrop-blur-md bg-black/40 border border-pink-500/30 rounded-xl text-white text-sm">
+            <h3 className="text-pink-400 font-medium mb-2">Diagnose Værktøjer</h3>
+            
+            <div className="mb-3">
+              <button 
+                onClick={generateTestUrl}
+                className="px-3 py-1 bg-pink-600/20 text-pink-300 rounded-md mr-2"
+              >
+                Generer Test URL
+              </button>
+              
+              <input 
+                type="text" 
+                value={testUrl} 
+                onChange={(e) => setTestUrl(e.target.value)}
+                className="w-full mt-2 p-2 bg-black/40 border border-pink-500/30 rounded-md text-white"
+                placeholder="Indsæt billede URL..."
+              />
+            </div>
+            
+            <div className="flex space-x-2 mb-3">
+              <button 
+                onClick={testImageUrl}
+                className="px-3 py-1 bg-pink-600/20 text-pink-300 rounded-md"
+              >
+                Test URL
+              </button>
+              
+              <button 
+                onClick={testCors}
+                className="px-3 py-1 bg-pink-600/20 text-pink-300 rounded-md"
+              >
+                Test CORS
+              </button>
+            </div>
+            
+            {corsStatus && (
+              <div className="p-2 bg-black/40 border border-pink-500/30 rounded-md whitespace-pre-line">
+                {corsStatus}
+              </div>
+            )}
+            
+            <div className="mt-3">
+              <h4 className="text-pink-400 text-xs mb-1">Test billede direkte:</h4>
+              {testUrl && (
+                <div className="p-2 bg-black/20 border border-pink-500/20 rounded-md">
+                  <p className="text-xs mb-2 break-all">{testUrl}</p>
+                  <div className="relative aspect-video w-full max-h-[200px] bg-black/30 flex items-center justify-center">
+                    <img 
+                      src={testUrl} 
+                      alt="Test billede" 
+                      className="max-h-[180px] max-w-full object-contain"
+                      onError={(e) => {
+                        console.error('Test billede kunne ikke indlæses');
+                        const target = e.target as HTMLImageElement;
+                        target.style.display = 'none';
+                        const parent = target.parentElement;
+                        if (parent) {
+                          const errorMsg = document.createElement('div');
+                          errorMsg.className = 'text-pink-400 text-xs';
+                          errorMsg.textContent = 'Billedet kunne ikke indlæses';
+                          parent.appendChild(errorMsg);
+                        }
+                      }}
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Navigation og Header - skjules i fuldskærm */}
