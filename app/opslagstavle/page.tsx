@@ -934,6 +934,21 @@ export default function OpslagstavlePage() {
                             throw new Error('Manglende URL');
                           }
                           
+                          // Sikre at relative URLs bliver konverteret til absolutte
+                          if (imageUrl.startsWith('/uploads/')) {
+                            const baseUrl = window.location.origin;
+                            imageUrl = `${baseUrl}${imageUrl}`;
+                            console.log(`Konverterede relativ URL til: ${imageUrl}`);
+                          }
+
+                          // Fjern eventuelle dobbeltkvoter fra URLen hvis de findes (sker nogle gange ved serialisering)
+                          imageUrl = imageUrl.replace(/^"|"$/g, '');
+                          
+                          // Log for at se om vi får en Supabase URL
+                          if (imageUrl.includes('supabase.co')) {
+                            console.log('📸 Supabase Storage URL registreret:', imageUrl);
+                          }
+                          
                           // Vis et simpelt img-tag i stedet for Next.js Image component
                           // Dette omgår Next.js' Image optimering som kan give problemer med eksterne URLs
                           return (

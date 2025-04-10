@@ -3,19 +3,21 @@ import { writeFile } from 'fs/promises';
 import { join } from 'path';
 import { createClient } from '@supabase/supabase-js';
 
-// Opret en Supabase-klient med ANON key (skal bruges til public API routes)
+// Definer Supabase-klient med korrekt URL og ANON key
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
 // Log detaljeret information om Supabase konfiguration (uden at vise hele nøglen)
 console.log('Supabase URL:', supabaseUrl);
 console.log('Supabase ANON Key tilgængelig:', !!supabaseAnonKey);
-console.log('Supabase ANON Key start:', supabaseAnonKey?.substring(0, 10) + '...');
+if (supabaseAnonKey) {
+  console.log('Supabase ANON Key start:', supabaseAnonKey.substring(0, 10) + '...');
+}
 
 // Initialiser Supabase klienten
 const supabase = createClient(
-  supabaseUrl!,
-  supabaseAnonKey!
+  supabaseUrl || 'https://jwtiblsahzksgpbdgtj.supabase.co',
+  supabaseAnonKey || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBlcmJhc2UiLCJyZWYiOiJqd3RpYmxzYWh6a3NncGJkZ3RqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MDIzMTYwNTAsImV4cCI6MjAxNzg5MjA1MH0.jAxM0VyNakrHrVaUBBMRbcCkFKSgjQEeBraE_93cP-nOmMSvw'
 );
 
 /**
@@ -53,23 +55,22 @@ export async function POST(request: NextRequest) {
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
     
-    // Gem lokalt som backup i public/uploads mappen
-    try {
-      const publicUploadDir = join(process.cwd(), 'public', 'uploads');
-      await writeFile(join(publicUploadDir, fullFileName), buffer);
-      console.log(`💾 Fil gemt lokalt: ${fullFileName}`);
-    } catch (writeError) {
-      console.error('❌ Kunne ikke gemme fil lokalt:', writeError);
-      // Vi fortsætter med Supabase upload selvom lokal lagring fejler
-    }
+    // Gem IKKE længere lokalt som backup - vi bruger kun Supabase
+    const isProduction = process.env.NODE_ENV === 'production';
+    console.log(`🌍 Kører i ${isProduction ? 'produktion' : 'udvikling'} miljø`);
     
     // Upload til Supabase med direkte path-angivelse
     const bucketName = 'brevkasse-billeder';
-    const folderName = 'p06g4u_0'; // Brug altid den samme folder for enkelthedens skyld
+    const folderName = 'uploads'; // Brug en simpel mappe navn
     const fullPath = `${folderName}/${fullFileName}`;
     
     console.log(`☁️ Uploader til Supabase: bucket=${bucketName}, path=${fullPath}`);
     
+    // Forøg log detaljer
+    console.log('Supabase klient initialiseret:', !!supabase);
+    console.log('Supabase Storage API tilgængelig:', !!supabase?.storage);
+    console.log('Supabase bucket API tilgængelig:', !!supabase?.storage?.from);
+
     try {
       // Upload fil til Supabase
       const { data, error } = await supabase.storage
@@ -82,16 +83,7 @@ export async function POST(request: NextRequest) {
       
       if (error) {
         console.error('❌ Supabase upload fejl:', error.message);
-        
-        // Returner den lokale URL som fallback
-        const localUrl = `/uploads/${fullFileName}`;
-        console.log(`🔄 Bruger lokal URL: ${localUrl}`);
-        
-        return NextResponse.json({
-          success: false,
-          error: error.message,
-          url: localUrl // Returnerer stadig en brugbar URL
-        });
+        throw new Error(`Supabase upload fejl: ${error.message}`);
       }
       
       console.log('✅ Supabase upload success:', data);
@@ -103,27 +95,18 @@ export async function POST(request: NextRequest) {
       
       if (!urlData || !urlData.publicUrl) {
         console.error('❌ Kunne ikke generere offentlig URL');
-        
-        // Returner den lokale URL som fallback
-        const localUrl = `/uploads/${fullFileName}`;
-        console.log(`🔄 Bruger lokal URL: ${localUrl}`);
-        
-        return NextResponse.json({
-          success: false,
-          error: 'Kunne ikke generere offentlig URL',
-          url: localUrl
-        });
+        throw new Error('Kunne ikke generere offentlig URL');
       }
       
       const publicUrl = urlData.publicUrl;
       console.log(`🔗 Genereret offentlig URL: ${publicUrl}`);
       
-      // Test om URL'en er tilgængelig (valgfrit men kan hjælpe med fejlfinding)
+      // Test om URL'en er tilgængelig
       try {
         const testResponse = await fetch(publicUrl, { method: 'HEAD' });
         console.log(`🧪 URL Test: Status=${testResponse.status}, OK=${testResponse.ok}`);
       } catch (testError) {
-        console.error('⚠️ URL Test fejl (kan ignoreres):', testError);
+        console.warn('⚠️ URL Test fejl (kan påvirke visning):', testError);
       }
       
       // Returner success response med publicUrl
@@ -131,18 +114,14 @@ export async function POST(request: NextRequest) {
         success: true,
         url: publicUrl
       });
+      
     } catch (uploadError) {
-      console.error('❌ Uventet fejl ved Supabase upload:', uploadError);
-      
-      // Returner den lokale URL som fallback
-      const localUrl = `/uploads/${fullFileName}`;
-      console.log(`🔄 Bruger lokal URL: ${localUrl}`);
-      
+      console.error('❌ Fejl ved Supabase upload:', uploadError);
+      // Hvis vi fejler med Supabase upload, kan vi ikke levere et billede
       return NextResponse.json({
         success: false,
-        error: uploadError instanceof Error ? uploadError.message : 'Ukendt uploadfejl',
-        url: localUrl
-      });
+        error: uploadError instanceof Error ? uploadError.message : 'Ukendt fejl i Supabase upload'
+      }, { status: 500 });
     }
   } catch (error) {
     console.error('❌ Fatal fejl i API route:', error);
