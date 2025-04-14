@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { supabase } from '@/utils/supabase/client';
@@ -574,195 +574,66 @@ export default function OpslagstavlePage() {
     }
   };
 
+  // Tilføj useEffect til at styre fuldskærm-tilstand
+  useEffect(() => {
+    // Finder navbar elementet
+    const navbar = document.querySelector('nav');
+    
+    if (navbar) {
+      if (isFullscreen) {
+        // Skjul navbar og tilføj margin-top 0 ved fuldskærm
+        navbar.classList.add('hidden');
+      } else {
+        // Vis navbar igen når fuldskærm afsluttes
+        navbar.classList.remove('hidden');
+      }
+    }
+    
+    // Tilføj overflow hidden til body når i fuldskærm
+    if (isFullscreen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    
+    return () => {
+      // Cleanup - sikrer at navbar vises igen når komponenten unmountes
+      if (navbar) {
+        navbar.classList.remove('hidden');
+      }
+      document.body.style.overflow = '';
+    };
+  }, [isFullscreen]);
+
   return (
-    <div className={`min-h-screen flex flex-col items-center py-4 relative transition-all duration-500 ${isFullscreen ? 'fullscreen-mode' : ''}`}>
-      {/* Nyt dynamisk baggrunds design */}
-      <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
-        {/* Base layer - Deep space effect */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black via-purple-950/30 to-black"></div>
-        
-        {/* Dynamic nebula effect */}
-        <div className="absolute inset-0">
-          <div className="absolute inset-0 bg-gradient-to-tr from-pink-500/5 via-purple-500/10 to-blue-500/5 animate-nebula"></div>
-          <div className="absolute inset-0 bg-gradient-to-bl from-purple-500/10 via-pink-500/5 to-blue-500/5 animate-nebula-reverse"></div>
-        </div>
-
-        {/* Floating orbs */}
-        <div className="absolute inset-0">
-          {/* Large orb */}
-          <div className="absolute right-[10%] top-[20%] w-[40vw] h-[40vw] rounded-full bg-gradient-to-br from-purple-500/10 via-pink-500/5 to-transparent blur-3xl animate-float-slow"></div>
-          {/* Medium orb */}
-          <div className="absolute left-[15%] top-[40%] w-[25vw] h-[25vw] rounded-full bg-gradient-to-tr from-pink-500/10 via-purple-500/5 to-transparent blur-2xl animate-float-medium"></div>
-          {/* Small orb */}
-          <div className="absolute right-[25%] bottom-[20%] w-[15vw] h-[15vw] rounded-full bg-gradient-to-r from-purple-500/10 via-pink-500/5 to-transparent blur-xl animate-float-fast"></div>
-        </div>
-
-        {/* Animated grid overlay */}
-        <div className="absolute inset-0 bg-[linear-gradient(90deg,transparent_39px,rgba(219,39,119,0.05)_40px),linear-gradient(transparent_39px,rgba(219,39,119,0.05)_40px)] bg-[size:40px_40px] animate-grid-scroll opacity-20"></div>
-        
-        {/* Scanlines */}
-        <div className="absolute inset-0 bg-[linear-gradient(to_bottom,transparent_49%,rgba(219,39,119,0.05)_50%,transparent_51%)] bg-[size:100%_4px]"></div>
-        
-        {/* Dynamic light rays */}
-        <div className="absolute inset-0">
-          <div className="absolute inset-0 bg-[conic-gradient(from_0deg_at_50%_50%,transparent_0deg,rgba(219,39,119,0.1)_90deg,transparent_180deg)] animate-ray-rotate"></div>
-          <div className="absolute inset-0 bg-[conic-gradient(from_180deg_at_50%_50%,transparent_0deg,rgba(147,51,234,0.1)_90deg,transparent_180deg)] animate-ray-rotate-reverse"></div>
-        </div>
-        
-        {/* Subtle noise texture */}
-        <div className="absolute inset-0 bg-noise opacity-[0.02] mix-blend-overlay"></div>
-        
-        {/* Vignette effect */}
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,transparent_20%,rgba(0,0,0,0.7)_100%)]"></div>
-        
-        {/* Glowing edges */}
-        <div className="absolute inset-0">
-          <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-pink-500/20 to-transparent"></div>
-          <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-pink-500/20 to-transparent"></div>
-          <div className="absolute top-0 bottom-0 left-0 w-px bg-gradient-to-b from-transparent via-pink-500/20 to-transparent"></div>
-          <div className="absolute top-0 bottom-0 right-0 w-px bg-gradient-to-b from-transparent via-pink-500/20 to-transparent"></div>
-        </div>
-      </div>
-
-      {/* Debug Panel - skjult som standard */}
-      <div className="w-full max-w-6xl mx-auto mb-4">
-        <button 
-          onClick={() => setDebugMode(!debugMode)}
-          className="px-3 py-1 bg-pink-600/20 text-pink-300 text-xs rounded-md mb-2"
-        >
-          {debugMode ? 'Skjul Fejlsøgning' : 'Vis Fejlsøgning'}
-        </button>
-        
-        {debugMode && (
-          <div className="p-4 backdrop-blur-md bg-black/40 border border-pink-500/30 rounded-xl text-white text-sm">
-            <h3 className="text-pink-400 font-medium mb-2">Diagnose Værktøjer</h3>
-            
-            <div className="mb-3">
-              <button 
-                onClick={generateTestUrl}
-                className="px-3 py-1 bg-pink-600/20 text-pink-300 rounded-md mr-2"
-              >
-                Generer Test URL
-              </button>
-              
-              <input 
-                type="text" 
-                value={testUrl} 
-                onChange={(e) => setTestUrl(e.target.value)}
-                className="w-full mt-2 p-2 bg-black/40 border border-pink-500/30 rounded-md text-white"
-                placeholder="Indsæt billede URL..."
-              />
-            </div>
-            
-            <div className="flex space-x-2 mb-3">
-              <button 
-                onClick={testImageUrl}
-                className="px-3 py-1 bg-pink-600/20 text-pink-300 rounded-md"
-              >
-                Test URL
-              </button>
-              
-              <button 
-                onClick={testCors}
-                className="px-3 py-1 bg-pink-600/20 text-pink-300 rounded-md"
-              >
-                Test CORS
-              </button>
-            </div>
-            
-            {corsStatus && (
-              <div className="p-2 bg-black/40 border border-pink-500/30 rounded-md whitespace-pre-line">
-                {corsStatus}
-              </div>
-            )}
-            
-            <div className="mt-3">
-              <h4 className="text-pink-400 text-xs mb-1">Test billede direkte:</h4>
-              {testUrl && (
-                <div className="p-2 bg-black/20 border border-pink-500/20 rounded-md">
-                  <p className="text-xs mb-2 break-all">{testUrl}</p>
-                  <div className="relative aspect-video w-full max-h-[200px] bg-black/30 flex items-center justify-center">
-                    <img 
-                      src={testUrl} 
-                      alt="Test billede" 
-                      className="max-h-[180px] max-w-full object-contain"
-                      onError={(e) => {
-                        console.error('Test billede kunne ikke indlæses');
-                        const target = e.target as HTMLImageElement;
-                        target.style.display = 'none';
-                        const parent = target.parentElement;
-                        if (parent) {
-                          const errorMsg = document.createElement('div');
-                          errorMsg.className = 'text-pink-400 text-xs';
-                          errorMsg.textContent = 'Billedet kunne ikke indlæses';
-                          parent.appendChild(errorMsg);
-                        }
-                      }}
-                    />
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* Navigation og Header - skjules i fuldskærm */}
-      <div className={`w-full transition-all duration-500 ${isFullscreen ? 'opacity-0 pointer-events-none h-0 overflow-hidden' : 'opacity-100'}`}>
-        {/* Existing navigation and header */}
-        <nav className="mt-10 mb-8">
-          <ul className="flex flex-wrap justify-center gap-3">
-            <li>
-              <Link 
-                href="/" 
-                className="relative px-6 py-2 group backdrop-blur-md bg-black/30 border border-pink-400/30 hover:bg-pink-600/10 transition-colors rounded-md inline-block text-white font-medium"
-              >
-                <span className="relative z-10">Forside</span>
-              </Link>
-            </li>
-            <li>
-              <Link 
-                href="/turne" 
-                className="relative px-6 py-2 group backdrop-blur-md bg-black/30 border border-pink-400/30 hover:bg-pink-600/10 transition-colors rounded-md inline-block text-white font-medium"
-              >
-                <span className="relative z-10">Turné</span>
-              </Link>
-            </li>
-            <li>
-              <Link 
-                href="/brevkasse" 
-                className="relative px-6 py-2 group backdrop-blur-md bg-black/30 border border-pink-400/30 hover:bg-pink-600/10 transition-colors rounded-md inline-block text-white font-medium"
-              >
-                <span className="relative z-10">Brevkasse</span>
-              </Link>
-            </li>
-            <li>
-              <Link 
-                href="/opslagstavle" 
-                className="relative px-6 py-2 group backdrop-blur-md bg-pink-600/20 border border-pink-400/50 rounded-md inline-block text-white font-medium"
-              >
-                <span className="relative z-10">Opslagstavle</span>
-                <span className="absolute bottom-0 left-0 w-full h-0.5 bg-pink-400 animate-pulse"></span>
-              </Link>
-            </li>
-          </ul>
-        </nav>
-
-        <div className="w-full max-w-6xl mx-auto p-4 relative z-10">
-          {/* ... existing header ... */}
-        </div>
-      </div>
-
+    <div className={`min-h-screen flex flex-col items-center relative transition-all duration-500 ${isFullscreen ? 'fullscreen-mode fixed inset-0 z-50' : ''}`}>
       {/* Main Content med beskeder */}
-      <div className={`w-full relative z-10 transition-all duration-500 ${isFullscreen ? 'pt-0 px-4' : 'max-w-6xl p-4'}`}>
-        {/* Kontrolpanel med sortering og fuldskærm */}
-        <div className="flex justify-between items-center mb-6 backdrop-blur-md bg-black/40 border border-pink-500/30 rounded-xl p-3">
+      <div className={`w-full relative z-10 transition-all duration-500 ${isFullscreen ? 'h-screen pt-0 px-0 overflow-auto' : 'max-w-6xl px-4'}`}>
+        {/* Hero sektion - kun vist når ikke i fuldskærm */}
+        <div className={`transition-all duration-500 ${isFullscreen ? 'opacity-0 pointer-events-none h-0 overflow-hidden' : 'opacity-100 mb-16 text-center'}`}>
+          <div className="mb-6">
+            <Image 
+              src="/OPSLAGSTAVLECHROME.png"
+              alt="OPSLAGSTAVLE"
+              width={700}
+              height={180}
+              className="mx-auto"
+              priority
+            />
+          </div>
+          <p className="text-white/80 mt-4 text-base sm:text-lg max-w-2xl mx-auto text-readable leading-relaxed backdrop-blur-sm py-3 px-6 bg-black/10 rounded-full inline-block">
+            Her kan du se alle beskederne fra brevkassen - med kærlighed, sjove historier og spørgsmål
+          </p>
+        </div>
+        
+        {/* Kontrolpanel med sortering og fuldskærm - tilpasset stil baseret på fuldskærm tilstand */}
+        <div className={`backdrop-blur-sm bg-black/20 border border-pink-500/20 transition-all duration-300 hover:bg-black/30 hover:border-pink-500/30 shadow-lg ${isFullscreen ? 'rounded-none p-3 fixed top-0 left-0 right-0 z-50' : 'rounded-2xl p-4 mb-10'}`}>
+          <div className="flex justify-between items-center">
           {/* Sorteringsknap */}
           <button 
             onClick={toggleSortType}
-            className="relative px-4 py-2 backdrop-blur-md bg-black/30 border border-pink-400/30 hover:bg-pink-600/10 transition-colors rounded-md inline-block text-white font-medium"
+              className="flex items-center gap-2 bg-black/30 hover:bg-black/50 text-white px-4 py-2.5 rounded-xl border border-pink-500/30 transition-all duration-300 hover:border-pink-500/50"
           >
-            <span className="flex items-center gap-2">
               {sortType === SortType.NEWEST ? (
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-pink-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -773,15 +644,13 @@ export default function OpslagstavlePage() {
                 </svg>
               )}
               <span>Sortér: <span className="text-pink-300 font-medium">{sortType === SortType.NEWEST ? 'Nyeste' : 'Mest populære'}</span></span>
-            </span>
           </button>
 
           {/* Fuldskærm toggle */}
           <button 
             onClick={() => setIsFullscreen(!isFullscreen)}
-            className="relative px-4 py-2 backdrop-blur-md bg-black/30 border border-pink-400/30 hover:bg-pink-600/10 transition-colors rounded-md inline-block text-white font-medium"
+              className="flex items-center gap-2 bg-black/30 hover:bg-black/50 text-white px-4 py-2.5 rounded-xl border border-pink-500/30 transition-all duration-300 hover:border-pink-500/50"
           >
-            <span className="flex items-center gap-2">
               {isFullscreen ? (
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-pink-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 9L4 4m0 0l5 5M4 4v7m11-7h7m0 0l-5 5m5-5v7m-7 11l5-5m0 0l-5-5m5 5H4m7 0h7m0 0l-5 5m5-5v-7" />
@@ -791,103 +660,114 @@ export default function OpslagstavlePage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
                 </svg>
               )}
-              <span>{isFullscreen ? 'Afslut fuldskærm' : 'Fuldskærm'}</span>
-            </span>
+                <span>{isFullscreen ? 'Afslut' : 'Fuldskærm'}</span>
           </button>
+          </div>
         </div>
 
-        {/* Messages grid - justeret layout i fuldskærm */}
-        <div className={`grid gap-8 mb-16 ${isFullscreen ? 'grid-cols-1 max-w-3xl mx-auto' : 'grid-cols-1'}`}>
+        {/* Message grid - tilpasset med padding når i fuldskærm */}
+        <div className={`grid gap-6 grid-cols-1 mx-auto transition-all duration-300 ${isFullscreen ? 'mt-16 px-4 pb-6 max-w-3xl w-full' : 'mb-16 max-w-3xl'}`}>
           {loading && (
-            <div className="flex justify-center items-center py-12 backdrop-blur-md bg-black/40 border border-pink-500/30 rounded-xl">
-              <div className="cyber-spinner"></div>
-              <div className="ml-4">
-                <p className="text-pink-300 animate-pulse">Indlæser beskeder...</p>
-                <p className="text-xs text-white/50">Etablerer forbindelse</p>
+            <div className={`backdrop-blur-sm bg-black/20 rounded-2xl flex justify-center items-center py-16 border border-pink-500/20 ${isFullscreen ? 'col-span-full' : ''}`}>
+              <div className="flex flex-col items-center">
+                <div className="w-14 h-14 rounded-full border-t-2 border-l-2 border-pink-500 animate-spin mb-4"></div>
+                <p className="text-pink-300 text-lg font-medium">Indlæser beskeder</p>
+                <p className="text-white/50 text-sm">Etablerer forbindelse til brevkassen</p>
               </div>
             </div>
           )}
           
           {error && (
-            <div className="bg-red-900/30 backdrop-blur-md border border-red-500/50 text-red-200 p-6 rounded-lg my-6 relative overflow-hidden">
-              <h3 className="text-red-400 font-bold mb-2">FEJL</h3>
-              {error}
-              <p className="mt-3 text-xs text-red-300/70">Prøv at genindlæse siden eller tjek din forbindelse</p>
+            <div className={`backdrop-blur-sm bg-black/20 rounded-2xl p-8 my-8 border border-red-500/40 text-red-200 ${isFullscreen ? 'col-span-full' : ''}`}>
+              <div className="flex items-start gap-4">
+                <div className="bg-red-500/20 rounded-full p-3">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <div>
+                  <h3 className="text-red-400 font-bold text-xl mb-2">Der opstod en fejl</h3>
+                  <p className="text-white/80 mb-4">{error}</p>
+                  <p className="text-red-300/70 text-sm">Prøv at genindlæse siden eller tjek din forbindelse</p>
+                </div>
+              </div>
             </div>
           )}
           
           {!loading && messages.length === 0 && (
-            <div className="text-center py-16 backdrop-blur-md bg-black/40 border border-pink-500/30 rounded-xl">
-              <p className="text-center text-pink-300 mt-6 text-xl">
-                Ingen beskeder endnu.
+            <div className={`backdrop-blur-sm bg-black/20 rounded-2xl py-16 text-center border border-pink-500/20 ${isFullscreen ? 'col-span-full' : ''}`}>
+              <div className="bg-pink-500/10 w-20 h-20 rounded-full mx-auto flex items-center justify-center mb-6">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 text-pink-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
+              </div>
+              <p className="text-center text-pink-300 text-xl font-medium mb-2">
+                Ingen beskeder endnu
               </p>
-              <p className="text-white/60 mt-2">Vær den første til at skrive i brevkassen!</p>
-              <Link href="/brevkasse" className="inline-block mt-6 relative px-6 py-2 group backdrop-blur-md bg-black/30 border border-pink-400/30 hover:bg-pink-600/10 transition-colors rounded-md text-white font-medium">
-                Gå til Brevkasse →
+              <p className="text-white/60 mb-8">Vær den første til at skrive i brevkassen!</p>
+              <Link href="/brevkasse" className="bg-gradient-to-r from-pink-600/40 to-purple-600/40 hover:from-pink-600/60 hover:to-purple-600/60 text-white px-6 py-3 rounded-xl border border-pink-500/30 transition-all duration-300 hover:border-pink-500/50 font-medium shadow-md inline-flex items-center gap-2">
+                <span>Gå til Brevkasse</span>
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                </svg>
               </Link>
             </div>
           )}
           
           {/* Beskeder - sorteret efter valgt kriterie */}
-          {messages.map((msg, index) => (
+          {messages.map((msg, index) => {
+            // Beregn om det er en kort eller lang besked - bestemmer styling
+            const isShortMessage = !msg.billede && msg.besked && msg.besked.length < 100;
+            
+            return (
             <div 
               key={msg.id} 
-              className={`group/card backdrop-blur-md bg-black/40 rounded-xl overflow-hidden transition-all duration-500 
-                ${isFullscreen 
-                  ? 'hover:scale-[1.02] hover:-translate-y-1 hover:shadow-[0_0_30px_rgba(219,39,119,0.2)]' 
-                  : 'hover:shadow-[0_0_25px_rgba(219,39,119,0.15)]'
-                }`}
-            >
-              {/* Besked header */}
-              <div className="p-5 border-b border-pink-500/10 bg-black/20">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-4">
+                className={`backdrop-blur-sm bg-black/20 border border-pink-500/20 hover:border-pink-500/40 hover:bg-black/30 rounded-2xl transition-all duration-300 hover:shadow-lg ${isShortMessage ? 'py-3 px-4' : 'p-5'}`}
+              >
+                {/* Besked header - kompakt for korte beskeder */}
+                <div className={`flex items-center justify-between ${isShortMessage ? 'mb-2' : 'mb-4'}`}>
+                  <div className="flex items-center gap-3">
                     {/* Avatar */}
-                    <div className="relative">
-                      <div className="h-11 w-11 rounded-full bg-gradient-to-br from-pink-500 to-purple-700 flex items-center justify-center text-white font-bold text-lg shadow-md">
+                    <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-pink-500 to-purple-700 flex items-center justify-center text-white font-bold text-base shadow-md">
                         {msg.navn.charAt(0).toUpperCase()}
-                      </div>
-                      <div className="absolute inset-0 rounded-full bg-gradient-to-br from-pink-500 to-purple-700 opacity-30 blur-md -z-10"></div>
                     </div>
                     
                     {/* User info */}
                     <div>
-                      <h3 className="text-white font-semibold text-lg tracking-wide leading-none mb-1">
+                      <h3 className="text-white font-semibold text-sm tracking-wide">
                         {msg.navn}
                       </h3>
-                      <div className="flex items-center gap-3 text-sm">
+                      <div className="flex items-center gap-2 text-xs">
                         <span className="text-pink-300/70">{formatTimeAgo(msg.created_at)}</span>
-                        <span className="text-pink-500/50">•</span>
-                        <span className="font-mono text-xs text-pink-300/50">#{msg.id.substring(0, 6)}</span>
                       </div>
                     </div>
                   </div>
 
-                  {/* Badges */}
+                  {/* Badges and Like button */}
                   <div className="flex items-center gap-2">
                     {sortType === SortType.NEWEST && index === 0 && (
-                      <div className="bg-gradient-to-r from-pink-500 to-purple-600 text-white text-xs px-3 py-1 rounded-full shadow-lg">
+                      <div className="bg-gradient-to-r from-pink-500 to-purple-600 text-white text-xs px-2 py-0.5 rounded-full shadow-md">
                         Nyeste
                       </div>
                     )}
                     {sortType === SortType.MOST_LIKED && index === 0 && msg.likes > 0 && (
-                      <div className="bg-gradient-to-r from-pink-500 to-purple-400 text-white text-xs px-3 py-1 rounded-full shadow-lg">
-                        Mest populær
+                      <div className="bg-gradient-to-r from-pink-500 to-purple-400 text-white text-xs px-2 py-0.5 rounded-full shadow-md">
+                        Populær
                       </div>
                     )}
                     
                     {/* Like button */}
                     <button 
                       onClick={() => handleLikeToggle(msg.id)}
-                      className={`flex items-center gap-1.5 px-4 py-2 rounded-full transition-all duration-300 
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all duration-300 
                         ${likedMessages[msg.id] 
-                          ? 'bg-pink-500/30 text-pink-300 shadow-[0_0_15px_rgba(219,39,119,0.3)]' 
-                          : 'bg-black/20 text-white/70 hover:bg-white/10'
+                          ? 'bg-gradient-to-r from-pink-500/40 to-pink-600/40 text-white border border-pink-500/50 shadow-md' 
+                          : 'bg-black/30 text-white/70 hover:bg-black/40 border border-pink-500/20 hover:border-pink-500/40'
                         }`}
                     >
                       <svg 
                         xmlns="http://www.w3.org/2000/svg" 
-                        className={`h-5 w-5 transition-transform duration-300 ${likedMessages[msg.id] ? 'scale-110 animate-pulse' : ''}`}
+                        className={`h-4 w-4 ${likedMessages[msg.id] ? 'text-pink-300' : 'text-pink-400/70'}`}
                         fill={likedMessages[msg.id] ? "currentColor" : "none"} 
                         viewBox="0 0 24 24" 
                         stroke="currentColor"
@@ -899,109 +779,115 @@ export default function OpslagstavlePage() {
                           d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" 
                         />
                       </svg>
-                      <span className={`text-sm font-medium transition-all duration-300 ${msg.likes > 0 ? (likedMessages[msg.id] ? 'text-pink-200' : 'text-pink-300/70') : ''}`}>
+                      <span className={`text-xs font-medium ${likedMessages[msg.id] ? 'text-white' : 'text-white/80'}`}>
                         {msg.likes || 0}
                       </span>
                     </button>
                   </div>
                 </div>
-              </div>
 
-              {/* Message content */}
-              <div className="p-6">
-                <div className="text-white/90 whitespace-pre-wrap text-base leading-relaxed">
+                {/* Message content - enten inline eller blok baseret på længde */}
+                {isShortMessage ? (
+                  <div className="text-white font-medium text-base">
+                    {msg.besked ? msg.besked.replace(/\n\n\[LIKES:\d+\]$/, '') : ''}
+              </div>
+                ) : (
+                  <div className="my-3">
+                    <div className="text-white font-medium whitespace-pre-wrap text-base leading-relaxed">
                   {msg.besked ? msg.besked.replace(/\n\n\[LIKES:\d+\]$/, '') : ''}
                 </div>
               </div>
+                )}
 
-              {/* Image section */}
+                {/* Image section - optimeret størrelse */}
               {msg.billede && (
-                <div className="relative w-full bg-black/30">
-                  <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/20 pointer-events-none z-10"></div>
+                  <div className={`overflow-hidden rounded-lg border border-pink-500/20 ${isShortMessage ? 'mt-2' : 'mt-3'}`}>
+                    <div className="relative w-full">
                   <div className="relative w-full">
-                    <div className="relative aspect-video w-full group/img">
-                      {(() => {
-                        try {
-                          // Format URL correctly - handle both absolute and relative paths
-                          let imageUrl = msg.billede;
-                          
-                          // Detaljeret logning af billede URL
-                          console.log(`Forsøger at vise billede for ${msg.id}`);
-                          console.log(`Original billede URL: "${imageUrl}"`);
-                          
-                          // Make sure we have valid URL format
-                          if (!imageUrl) {
-                            throw new Error('Manglende URL');
-                          }
-                          
-                          // Sikre at relative URLs bliver konverteret til absolutte
-                          if (imageUrl.startsWith('/uploads/')) {
-                            const baseUrl = window.location.origin;
-                            imageUrl = `${baseUrl}${imageUrl}`;
-                            console.log(`Konverterede relativ URL til: ${imageUrl}`);
-                          }
+                        {(() => {
+                          try {
+                            // Format URL correctly - handle both absolute and relative paths
+                            let imageUrl = msg.billede;
+                            
+                            // Detaljeret logning af billede URL
+                            console.log(`Forsøger at vise billede for ${msg.id}`);
+                            console.log(`Original billede URL: "${imageUrl}"`);
+                            
+                            // Make sure we have valid URL format
+                            if (!imageUrl) {
+                              throw new Error('Manglende URL');
+                            }
+                            
+                            // Sikre at relative URLs bliver konverteret til absolutte
+                            if (imageUrl.startsWith('/uploads/')) {
+                              const baseUrl = window.location.origin;
+                              imageUrl = `${baseUrl}${imageUrl}`;
+                              console.log(`Konverterede relativ URL til: ${imageUrl}`);
+                            }
 
-                          // Fjern eventuelle dobbeltkvoter fra URLen hvis de findes (sker nogle gange ved serialisering)
-                          imageUrl = imageUrl.replace(/^"|"$/g, '');
-                          
-                          // Log for at se om vi får en Supabase URL
-                          if (imageUrl.includes('supabase.co')) {
-                            console.log('📸 Supabase Storage URL registreret:', imageUrl);
-                          }
-                          
-                          // Vis et simpelt img-tag i stedet for Next.js Image component
-                          // Dette omgår Next.js' Image optimering som kan give problemer med eksterne URLs
-                          return (
-                            <div className="w-full h-full flex items-center justify-center">
-                              <img 
-                                src={imageUrl}
-                                alt={`Billede fra ${msg.navn}`}
-                                className="max-h-[500px] max-w-full object-contain"
-                                onError={(e) => {
-                                  console.error(`Billede kunne ikke indlæses: ${imageUrl}`);
-                                  const target = e.target as HTMLImageElement;
-                                  target.style.display = 'none';
-                                  const parent = target.parentElement;
-                                  if (parent) {
-                                    // Indsæt fejlbesked med detaljeret fejlinformation
-                                    const errorMsg = document.createElement('div');
-                                    errorMsg.className = 'text-center py-6 text-pink-400';
-                                    errorMsg.innerHTML = `
-                                      Billedet kunne ikke indlæses<br>
-                                      <span class="text-xs text-pink-300/70">URL: ${imageUrl.substring(0, 50)}...</span><br>
-                                      <span class="text-xs text-pink-300/70">Prøv at genindlæse siden</span>
-                                    `;
-                                    parent.appendChild(errorMsg);
-                                  }
-                                }}
-                              />
-                            </div>
-                          );
-                        } catch (error) {
-                          console.error('Fejl ved håndtering af billedrendering:', error);
-                          return (
-                            <div className="flex items-center justify-center h-full">
-                              <div className="text-pink-400 p-4 text-center">
-                                <p>Kunne ikke vise billedet</p>
-                                <p className="text-xs mt-2 text-pink-300/70">{error instanceof Error ? error.message : 'Ukendt fejl'}</p>
+                            // Fjern eventuelle dobbeltkvoter fra URLen hvis de findes (sker nogle gange ved serialisering)
+                            imageUrl = imageUrl.replace(/^"|"$/g, '');
+                            
+                            // Log for at se om vi får en Supabase URL
+                            if (imageUrl.includes('supabase.co')) {
+                              console.log('📸 Supabase Storage URL registreret:', imageUrl);
+                            }
+                            
+                            // Vis et simpelt img-tag i stedet for Next.js Image component
+                            // Dette omgår Next.js' Image optimering som kan give problemer med eksterne URLs
+                            return (
+                              <div className="w-full h-full flex items-center justify-center p-2 bg-black/40">
+                                <img 
+                                  src={imageUrl}
+                        alt={`Billede fra ${msg.navn}`}
+                                  className="w-full object-contain max-w-full max-h-[500px]"
+                                  loading="lazy"
+                                  onError={(e) => {
+                                    console.error(`Billedet kunne ikke indlæses: ${imageUrl}`);
+                                    const target = e.target as HTMLImageElement;
+                                    target.style.display = 'none';
+                                    const parent = target.parentElement;
+                                    if (parent) {
+                                      // Indsæt fejlbesked med detaljeret fejlinformation
+                                      const errorMsg = document.createElement('div');
+                                      errorMsg.className = 'text-center py-6 text-pink-400';
+                                      errorMsg.innerHTML = `
+                                        Billedet kunne ikke indlæses<br>
+                                        <span class="text-xs text-pink-300/70">URL: ${imageUrl.substring(0, 50)}...</span><br>
+                                        <span class="text-xs text-pink-300/70">Prøv at genindlæse siden</span>
+                                      `;
+                                      parent.appendChild(errorMsg);
+                                    }
+                                  }}
+                                />
                               </div>
-                            </div>
-                          );
-                        }
-                      })()}
-                    </div>
+                            );
+                          } catch (error) {
+                            console.error('Fejl ved håndtering af billedrendering:', error);
+                            return (
+                              <div className="flex items-center justify-center h-full py-6 bg-black/40">
+                                <div className="text-pink-400 p-4 text-center">
+                                  <p>Kunne ikke vise billedet</p>
+                                  <p className="text-xs mt-2 text-pink-300/70">{error instanceof Error ? error.message : 'Ukendt fejl'}</p>
+                                </div>
+                              </div>
+                            );
+                          }
+                        })()}
+                      </div>
                   </div>
                 </div>
               )}
             </div>
-          ))}
+            );
+          })}
         </div>
       </div>
 
-      {/* Footer - skjules i fuldskærm */}
+      {/* Footer - simplere og renere */}
       <div className={`transition-all duration-500 ${isFullscreen ? 'opacity-0 pointer-events-none h-0 overflow-hidden' : 'opacity-100'}`}>
-        <div className="text-center text-xs text-pink-300/60 mt-6">
-          <p>© {new Date().getFullYear()} BAGGER & FELDTHAUS • STRIK & DRIK • Danmark</p>
+        <div className="text-center text-xs text-pink-300/60 mt-6 mb-8">
+          <p>© {new Date().getFullYear()} BAGGER & FELDTHAUS • STRIK & DRIK</p>
         </div>
       </div>
     </div>

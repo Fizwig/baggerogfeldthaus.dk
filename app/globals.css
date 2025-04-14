@@ -434,23 +434,23 @@ body::after {
 
 @layer components {
   .neumorphic {
-    @apply bg-background shadow-neumorphic transition-all duration-300;
+    @apply bg-black/20 shadow-lg transition-all duration-300;
   }
   
   .btn-primary {
-    @apply bg-primary text-white rounded-full px-6 py-3 shadow-lg 
-    hover:shadow-xl hover:bg-secondary hover:-translate-y-1 
-    focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary 
+    @apply bg-pink-600 text-white rounded-lg px-6 py-3 shadow-lg 
+    hover:shadow-xl hover:bg-pink-500 hover:-translate-y-1 
+    focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-pink-500 
     transition-all duration-300 transform;
   }
   
   .card {
-    @apply bg-white bg-opacity-40 rounded-2xl p-6 shadow-neumorphic 
-    hover:shadow-neumorphic-hover transition-all duration-300;
+    @apply bg-black/30 backdrop-blur-md rounded-xl p-6 shadow-lg
+    hover:shadow-xl transition-all duration-300;
   }
   
   .section-title {
-    @apply text-3xl md:text-4xl font-bold text-primary text-center mb-8;
+    @apply text-3xl md:text-4xl font-bold text-pink-500 text-center mb-8;
   }
 }
 
@@ -1096,4 +1096,140 @@ a:active {
   100% { 
     background-position: 200% center;
   }
+}
+
+/* Modern Glass Morphism Styling */
+.glass-panel {
+  @apply backdrop-blur-md bg-black/20 rounded-xl transition-all duration-300;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(219, 39, 119, 0.1);
+}
+
+.glass-panel:hover {
+  border-color: rgba(219, 39, 119, 0.2);
+  box-shadow: 0 8px 30px rgba(219, 39, 119, 0.1);
+}
+
+/* Improved text readability */
+.text-readable {
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+  letter-spacing: 0.02em;
+}
+
+/* Subtle pink glow effect */
+.pink-glow {
+  box-shadow: 0 0 15px rgba(219, 39, 119, 0.15);
+  transition: box-shadow 0.3s ease;
+}
+
+.pink-glow:hover {
+  box-shadow: 0 0 25px rgba(219, 39, 119, 0.25);
+}
+
+/* Gradient text */
+.gradient-text {
+  @apply text-transparent bg-clip-text bg-gradient-to-r from-pink-500 via-purple-500 to-pink-400;
+}
+
+/* Button styling */
+.btn-primary {
+  @apply relative px-6 py-2 bg-black/30 text-white rounded-md transition-all duration-300;
+  border: 1px solid rgba(219, 39, 119, 0.2);
+}
+
+.btn-primary:hover {
+  @apply bg-pink-600/20;
+  border-color: rgba(219, 39, 119, 0.4);
+  transform: translateY(-2px);
+}
+
+.btn-primary:active {
+  transform: translateY(1px);
+}
+
+/* Card styling */
+.content-card {
+  @apply backdrop-blur-md bg-black/20 rounded-xl p-6 transition-all duration-300;
+  border: 1px solid rgba(219, 39, 119, 0.1);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.content-card:hover {
+  border-color: rgba(219, 39, 119, 0.2);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+}
+
+/* Input styling */
+.form-input {
+  @apply bg-black/20 border border-pink-500/20 rounded-lg px-4 py-3 w-full text-white;
+  transition: all 0.3s ease;
+}
+
+.form-input:focus {
+  @apply outline-none border-pink-500/40;
+  box-shadow: 0 0 0 2px rgba(219, 39, 119, 0.1);
+}
+
+/* Clean image container */
+.img-container {
+  @apply relative overflow-hidden rounded-lg;
+  border: 1px solid rgba(219, 39, 119, 0.1);
+  transition: all 0.3s ease;
+}
+
+.img-container:hover {
+  border-color: rgba(219, 39, 119, 0.3);
+  transform: scale(1.01);
+}
+
+/* Navbar styling */
+.navbar {
+  @apply fixed top-0 left-0 right-0 z-40 py-4 px-6;
+  background: rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(219, 39, 119, 0.1);
+}
+
+/* Active link styling */
+.nav-link {
+  @apply px-3 py-1.5 transition-all duration-300 relative;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.nav-link:hover {
+  @apply text-pink-400;
+}
+
+.nav-link.active {
+  @apply font-bold text-pink-400;
+}
+
+.nav-link.active::after {
+  content: '';
+  @apply absolute bottom-0 left-1/4 right-1/4 h-0.5 bg-pink-500 rounded-full;
+}
+
+/* Animation keyframes */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.5s ease forwards;
+}
+
+/* Smooth hover transition */
+.hover-lift {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.hover-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+/* Section dividers */
+.section-divider {
+  @apply w-full h-px my-8 bg-gradient-to-r from-transparent via-pink-500/20 to-transparent;
 } 
