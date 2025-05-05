@@ -874,7 +874,7 @@ export default function OpslagstavlePage() {
                             );
                           }
                         })()}
-                      </div>
+                    </div>
                   </div>
                 </div>
               )}

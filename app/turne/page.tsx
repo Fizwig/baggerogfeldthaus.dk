@@ -15,52 +15,143 @@ interface TourDate {
 // Tour dates data
 const TOUR_DATES: TourDate[] = [
   {
-    date: "05. MAR 2025",
-    city: "KØBENHAVN",
-    location: "VEGA",
-    ticketLink: "https://billetto.dk/strikogdrik-kobenhavn",
-    soldOut: false
-  },
-  {
-    date: "12. MAR 2025",
-    city: "AARHUS",
-    location: "TRAIN",
-    ticketLink: "https://billetto.dk/strikogdrik-aarhus",
-    soldOut: false
-  },
-  {
-    date: "19. MAR 2025",
-    city: "ODENSE",
-    location: "POSTEN",
-    ticketLink: "https://billetto.dk/strikogdrik-odense",
+    date: "29. AUG 2025",
+    city: "OSLOBÅDEN",
+    location: "STRIK OG DRIK",
+    ticketLink: "https://allthingslive.dk/event/strik-og-drik",
     soldOut: true
   },
   {
-    date: "26. MAR 2025",
+    date: "05. SEP 2025",
+    city: "BALLERUP",
+    location: "BALTOPPEN",
+    ticketLink: "https://allthingslive.dk/event/strik-og-drik",
+    soldOut: false
+  },
+  {
+    date: "06. SEP 2025",
+    city: "GRENAA",
+    location: "PAVILLONEN",
+    ticketLink: "https://allthingslive.dk/event/strik-og-drik",
+    soldOut: false
+  },
+  {
+    date: "11. SEP 2025",
+    city: "ODENSE",
+    location: "MAGASINET",
+    ticketLink: "https://allthingslive.dk/event/strik-og-drik",
+    soldOut: false
+  },
+  {
+    date: "13. SEP 2025",
+    city: "NUUK",
+    location: "KATUAQ",
+    ticketLink: "https://allthingslive.dk/event/strik-og-drik",
+    soldOut: false
+  },
+  {
+    date: "26. SEP 2025",
+    city: "HARBOØRE",
+    location: "18B",
+    ticketLink: "https://allthingslive.dk/event/strik-og-drik",
+    soldOut: true
+  },
+  {
+    date: "27. SEP 2025",
+    city: "VESTERVIG",
+    location: "VESTERVIG-AGGER HALLEN",
+    ticketLink: "https://allthingslive.dk/event/strik-og-drik",
+    soldOut: false
+  },
+  {
+    date: "03. OKT 2025",
+    city: "HERNING",
+    location: "MCH HERNING KONGRESCENTER",
+    ticketLink: "https://allthingslive.dk/event/strik-og-drik",
+    soldOut: false
+  },
+  {
+    date: "04. OKT 2025",
+    city: "SVENDBORG",
+    location: "SVENDBORG TEATER",
+    ticketLink: "https://allthingslive.dk/event/strik-og-drik",
+    soldOut: false
+  },
+  {
+    date: "09. OKT 2025",
+    city: "ESBJERG",
+    location: "MUSIKHUSET ESBJERG",
+    ticketLink: "https://allthingslive.dk/event/strik-og-drik",
+    soldOut: false
+  },
+  {
+    date: "10. OKT 2025",
+    city: "AARHUS",
+    location: "HERMANS",
+    ticketLink: "https://allthingslive.dk/event/strik-og-drik",
+    soldOut: false
+  },
+  {
+    date: "24. OKT 2025",
+    city: "ROSKILDE",
+    location: "ROSKILDE KONGRESCENTER",
+    ticketLink: "https://allthingslive.dk/event/strik-og-drik",
+    soldOut: false
+  },
+  {
+    date: "25. OKT 2025",
+    city: "RANDERS",
+    location: "VÆRKET",
+    ticketLink: "https://allthingslive.dk/event/strik-og-drik",
+    soldOut: false
+  },
+  {
+    date: "30. OKT 2025",
+    city: "RØNNE",
+    location: "MUSIKHUZET",
+    ticketLink: "https://allthingslive.dk/event/strik-og-drik",
+    soldOut: false
+  },
+  {
+    date: "01. NOV 2025",
+    city: "HELSINGØR",
+    location: "KULTURVÆRFTET",
+    ticketLink: "https://allthingslive.dk/event/strik-og-drik",
+    soldOut: false
+  },
+  {
+    date: "13. NOV 2025",
     city: "AALBORG",
     location: "SKRÅEN",
-    ticketLink: "https://billetto.dk/strikogdrik-aalborg",
+    ticketLink: "https://allthingslive.dk/event/strik-og-drik",
     soldOut: false
   },
   {
-    date: "02. APR 2025",
-    city: "ESBJERG",
-    location: "TOBAKKEN",
-    ticketLink: "https://billetto.dk/strikogdrik-esbjerg",
+    date: "14. NOV 2025",
+    city: "HORSENS",
+    location: "FORUM HORSENS",
+    ticketLink: "https://allthingslive.dk/event/strik-og-drik",
     soldOut: false
   },
   {
-    date: "09. APR 2025",
-    city: "HERNING",
-    location: "FERMATEN",
-    ticketLink: "https://billetto.dk/strikogdrik-herning",
+    date: "21. NOV 2025",
+    city: "SILKEBORG",
+    location: "JYSK MUSIKTEATER",
+    ticketLink: "https://allthingslive.dk/event/strik-og-drik",
     soldOut: false
   },
   {
-    date: "16. APR 2025",
-    city: "ROSKILDE",
-    location: "GIMLE",
-    ticketLink: "https://billetto.dk/strikogdrik-roskilde",
+    date: "22. NOV 2025",
+    city: "VEJLE",
+    location: "VEJLE MUSIKTEATER",
+    ticketLink: "https://allthingslive.dk/event/strik-og-drik",
+    soldOut: false
+  },
+  {
+    date: "26. NOV 2025",
+    city: "KØBENHAVN",
+    location: "BREMEN TEATER",
+    ticketLink: "https://allthingslive.dk/event/strik-og-drik",
     soldOut: false
   }
 ];
@@ -157,7 +248,7 @@ export default function TurnePage() {
           {/* All tickets button */}
           <div className="mt-10 text-center">
             <a 
-              href="https://billetto.dk/strikogdrik" 
+              href="https://allthingslive.dk/event/strik-og-drik" 
               target="_blank" 
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 py-3 px-8 bg-gradient-to-r from-pink-600/30 to-purple-600/30 hover:from-pink-600/40 hover:to-purple-600/40 border border-pink-500/40 rounded-lg text-white transition-all duration-300 text-sm font-medium"
