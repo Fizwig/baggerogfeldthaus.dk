@@ -78,7 +78,7 @@ export async function POST(request: NextRequest) {
     }
     
     // Upload til Supabase med direkte path-angivelse
-    const bucketName = 'brevkasse-billeder';
+    const bucketName = SUPABASE_BUCKET;
     
     // Forsøg forskellige mapper baseret på Supabase policies
     const possibleFolders = ['p06g4u_0', 'p06g4u_1', 'p06g4u_2', 'p06g4u_3', 'uploads'];

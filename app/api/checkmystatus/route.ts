@@ -1,15 +1,14 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
-import { SUPABASE_BUCKET } from '@/utils/supabase/client';
 
 // Definer Supabase-klient med korrekt URL og ANON key
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-// Initialiser Supabase klienten (kun via miljøvariabler)
+// Initialiser Supabase klienten
 const supabase = createClient(
-  supabaseUrl || '',
-  supabaseAnonKey || ''
+  supabaseUrl || 'https://jwtiblsahzksgpbdgtj.supabase.co',
+  supabaseAnonKey || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBlcmJhc2UiLCJyZWYiOiJqd3RpYmxzYWh6a3NncGJkZ3RqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MDIzMTYwNTAsImV4cCI6MjAxNzg5MjA1MH0.jAxM0VyNakrHrVaUBBMRbcCkFKSgjQEeBraE_93cP-nOmMSvw'
 );
 
 // Definer typer for resultat-objektet
@@ -82,24 +81,24 @@ export async function GET() {
           created_at: b.created_at
         }));
         
-        // Tjek om bucket findes
-        const brevkasseBucket = buckets.find(b => b.name === SUPABASE_BUCKET);
+        // Tjek om brevkasse-billeder bucket findes
+        const brevkasseBucket = buckets.find(b => b.name === 'brevkasse-billeder');
         
         if (!brevkasseBucket) {
-          console.log(`⚠️ ${SUPABASE_BUCKET} bucket mangler - forsøger at oprette den`);
+          console.log('⚠️ brevkasse-billeder bucket mangler - forsøger at oprette den');
           
           // Forsøg at oprette bucket
           try {
-            const { data, error } = await supabase.storage.createBucket(SUPABASE_BUCKET, {
+            const { data, error } = await supabase.storage.createBucket('brevkasse-billeder', {
               public: true
             });
             
             if (error) {
               console.error('❌ Kunne ikke oprette bucket:', error.message);
-              results.buckets.push(`Kunne ikke oprette ${SUPABASE_BUCKET}: ${error.message}`);
+              results.buckets.push(`Kunne ikke oprette brevkasse-billeder: ${error.message}`);
             } else {
               console.log('✅ Bucket oprettet:', data);
-              results.buckets.push(`${SUPABASE_BUCKET} bucket oprettet`);
+              results.buckets.push('brevkasse-billeder bucket oprettet');
             }
           } catch (err) {
             console.error('❌ Fejl ved bucket oprettelse:', err);
@@ -107,19 +106,19 @@ export async function GET() {
           }
         } else if (!brevkasseBucket.public) {
           // Hvis bucketen findes men ikke er offentlig, gør den offentlig
-          console.log(`⚠️ ${SUPABASE_BUCKET} bucket er ikke offentlig - forsøger at opdatere`);
+          console.log('⚠️ brevkasse-billeder bucket er ikke offentlig - forsøger at opdatere');
           
           try {
-            const { error } = await supabase.storage.updateBucket(SUPABASE_BUCKET, {
+            const { error } = await supabase.storage.updateBucket('brevkasse-billeder', {
               public: true
             });
             
             if (error) {
               console.error('❌ Kunne ikke opdatere bucket til offentlig:', error.message);
-              results.buckets.push(`Kunne ikke opdatere ${SUPABASE_BUCKET} til offentlig: ${error.message}`);
+              results.buckets.push(`Kunne ikke opdatere brevkasse-billeder til offentlig: ${error.message}`);
             } else {
               console.log('✅ Bucket opdateret til offentlig');
-              results.buckets.push(`${SUPABASE_BUCKET} bucket opdateret til offentlig`);
+              results.buckets.push('brevkasse-billeder bucket opdateret til offentlig');
             }
           } catch (err) {
             console.error('❌ Fejl ved bucket opdatering:', err);
@@ -131,10 +130,10 @@ export async function GET() {
       results.buckets = [`Exception: ${err instanceof Error ? err.message : String(err)}`];
     }
 
-    // 2. Tjek om vi kan hente filer fra bucket
+    // 2. Tjek om vi kan hente filer fra brevkasse-billeder bucket
     try {
       const { data: files, error } = await supabase.storage
-        .from(SUPABASE_BUCKET)
+        .from('brevkasse-billeder')
         .list('uploads');
       
       if (error) {
@@ -160,7 +159,7 @@ export async function GET() {
 
       // Upload til Supabase
       const { data, error } = await supabase.storage
-        .from(SUPABASE_BUCKET)
+        .from('brevkasse-billeder')
         .upload(`uploads/${testFile}`, bin, {
           contentType: 'image/png',
           upsert: true
@@ -174,7 +173,7 @@ export async function GET() {
       } else {
         // Hent URL til testbilledet
         const { data: urlData } = supabase.storage
-          .from(SUPABASE_BUCKET)
+          .from('brevkasse-billeder')
           .getPublicUrl(`uploads/${testFile}`);
 
         results.test = {

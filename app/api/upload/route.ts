@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
-import { SUPABASE_BUCKET } from '@/utils/supabase/client';
 
 // Opret en server-side Supabase-klient med service role key
 // VIGTIGT: Sørg for at tilføje SUPABASE_SERVICE_ROLE_KEY til .env.local

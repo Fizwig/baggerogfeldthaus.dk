@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { supabase, SUPABASE_BUCKET } from '@/utils/supabase/client';
+import { supabase } from '@/utils/supabase/client';
 import DecorativeElement from '@/app/components/DecorativeElement';
 
 // Udvidet Message type med likes
@@ -388,6 +388,12 @@ export default function OpslagstavlePage() {
             message: error.message || 'Ingen besked',
             details: error.details || 'Ingen detaljer'
           });
+          
+          // Hvis det er en forbindelsesfejl, vis en mere brugervenlig besked
+          if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
+            throw new Error('Kunne ikke forbinde til databasen. Tjek din internetforbindelse og prøv igen.');
+          }
+          
           throw new Error(`Database fejl: ${error.message}`);
         }
         
@@ -800,7 +806,7 @@ export default function OpslagstavlePage() {
                 )}
 
                 {/* Image section - optimeret størrelse */}
-              {msg.billede && (
+              {msg.billede && msg.billede.trim() !== '' && (
                   <div className={`overflow-hidden rounded-lg border border-pink-500/20 ${isShortMessage ? 'mt-2' : 'mt-3'}`}>
                     <div className="relative w-full">
                   <div className="relative w-full">
@@ -813,9 +819,10 @@ export default function OpslagstavlePage() {
                             console.log(`Forsøger at vise billede for ${msg.id}`);
                             console.log(`Original billede URL: "${imageUrl}"`);
                             
-                            // Make sure we have valid URL format
-                            if (!imageUrl) {
-                              throw new Error('Manglende URL');
+                            // Make sure we have valid URL format - check for empty, null, or whitespace-only strings
+                            if (!imageUrl || imageUrl.trim() === '' || imageUrl === 'null' || imageUrl === 'undefined') {
+                              console.warn(`Skipper billede for ${msg.id} - ugyldig URL: "${imageUrl}"`);
+                              return null;
                             }
                             
                             // Sikre at relative URLs bliver konverteret til absolutte
