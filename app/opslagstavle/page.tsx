@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { supabase } from '@/utils/supabase/client';
+import { supabase, SUPABASE_BUCKET } from '@/utils/supabase/client';
 import DecorativeElement from '@/app/components/DecorativeElement';
 
 // Udvidet Message type med likes
