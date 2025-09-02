@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { supabase } from '@/utils/supabase/client';
+import { supabase, SUPABASE_BUCKET } from '@/utils/supabase/client';
 import DecorativeElement from '@/app/components/DecorativeElement';
 
 // Udvidet Message type med likes
@@ -559,7 +559,7 @@ export default function OpslagstavlePage() {
     try {
       // Opret en test URL ved at bruge Supabase's offentlige URL-generator
       const { data } = supabase.storage
-        .from('brevkasse-billeder')
+        .from(SUPABASE_BUCKET)
         .getPublicUrl('p06g4u_0/test.jpg');
         
       if (data && data.publicUrl) {

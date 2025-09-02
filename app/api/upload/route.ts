@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { SUPABASE_BUCKET } from '@/utils/supabase/client';
 
 // Opret en server-side Supabase-klient med service role key
 // VIGTIGT: Sørg for at tilføje SUPABASE_SERVICE_ROLE_KEY til .env.local
@@ -45,7 +46,7 @@ export async function POST(request: NextRequest) {
     
     // Upload fil til Supabase Storage
     const { data: uploadData, error } = await supabaseAdmin.storage
-      .from('brevkasse-billeder')
+      .from(SUPABASE_BUCKET)
       .upload(fullPath, buffer, {
         contentType: fileType || 'image/jpeg',
         cacheControl: '3600',
@@ -70,7 +71,7 @@ export async function POST(request: NextRequest) {
     
     // Få den offentlige URL til det uploadede billede
     const { data: urlData } = supabaseAdmin.storage
-      .from('brevkasse-billeder')
+      .from(SUPABASE_BUCKET)
       .getPublicUrl(fullPath);
 
     if (!urlData || !urlData.publicUrl) {

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { writeFile } from 'fs/promises';
 import { join } from 'path';
 import { createClient } from '@supabase/supabase-js';
+import { SUPABASE_BUCKET } from '@/utils/supabase/client';
 
 // Opret en Supabase-klient med ANON key (skal bruges til public API routes)
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -78,7 +79,7 @@ export async function POST(request: NextRequest) {
     }
     
     // Upload til Supabase med direkte path-angivelse
-    const bucketName = 'brevkasse-billeder';
+    const bucketName = SUPABASE_BUCKET;
     
     // Forsøg forskellige mapper baseret på Supabase policies
     const possibleFolders = ['p06g4u_0', 'p06g4u_1', 'p06g4u_2', 'p06g4u_3', 'uploads'];
