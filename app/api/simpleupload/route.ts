@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { writeFile } from 'fs/promises';
 import { join } from 'path';
 import { createClient } from '@supabase/supabase-js';
+import { SUPABASE_BUCKET } from '@/utils/supabase/client';
 
 // Opret en Supabase-klient med ANON key (skal bruges til public API routes)
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;

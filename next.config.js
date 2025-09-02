@@ -12,9 +12,7 @@ const nextConfig = {
     unoptimized: true,
   },
   reactStrictMode: true,
-  experimental: {
-    serverComponentsExternalPackages: ['@prisma/client'],
-  },
+  serverExternalPackages: ['@prisma/client'],
 };
 
 module.exports = nextConfig; 
